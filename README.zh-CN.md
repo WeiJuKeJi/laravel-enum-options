@@ -297,6 +297,101 @@ if (PaymentMethodEnum::isValid($input)) {
 $enum = PaymentMethodEnum::fromValue($nullable);  // 如果值为 null 或无效则返回 null
 ```
 
+### 安全数组转换（带降级处理）
+
+处理遗留数据或外部系统时，数据库中可能存在无效的枚举值。使用 `toArraySafe()` 优雅地处理这些值而不抛出异常：
+
+```php
+// 安全转换 - 对无效值返回降级对象
+$result = PaymentStatusEnum::toArraySafe('old_invalid_status');
+// 结果: [
+//     'value' => 'old_invalid_status',
+//     'label' => 'old_invalid_status',  // 或根据配置转换
+//     'color' => 'default',
+//     'icon' => null
+// ]
+
+// 在 API Resource 中使用，安全处理任何值
+class OrderResource extends JsonResource
+{
+    public function toArray($request): array
+    {
+        return [
+            'id' => $this->id,
+            // 即使 status 值无效也不会抛出异常
+            'status' => OrderStatusEnum::toArraySafe($this->status),
+        ];
+    }
+}
+```
+
+在 `config/enum-options.php` 中配置降级行为：
+
+```php
+// 无效值使用的颜色
+'fallback_color' => 'default',
+
+// 标签转换策略: none, upper, lower, ucfirst, ucwords
+'fallback_label_transform' => 'ucwords',  // 'old_status' -> 'Old Status'
+
+// 为特定无效值自定义标签
+'fallback_labels' => [
+    'legacy_paid' => '已支付（历史数据）',
+    'unknown' => '未知状态',
+],
+```
+
+## 自动枚举发现
+
+扩展包自动发现和注册枚举，无需手动配置。
+
+### 工作原理
+
+1. **预设枚举**: 自动从 `src/Presets` 目录扫描
+2. **应用枚举**: 自动从 `app/Enums` 目录扫描
+3. **无需维护**: 只需创建枚举文件，自动发现
+
+### 添加新枚举
+
+只需创建带有 `EnumOptions` trait 的枚举文件：
+
+```php
+// app/Enums/ShippingStatusEnum.php
+namespace App\Enums;
+
+use WeiJuKeJi\EnumOptions\Traits\EnumOptions;
+
+enum ShippingStatusEnum: string
+{
+    use EnumOptions;
+
+    case PENDING = 'pending';
+    case SHIPPED = 'shipped';
+
+    public function label(): string { return $this->value; }
+}
+```
+
+枚举会**自动注册**并通过 API 提供，无需任何配置。
+
+### 配置发现行为
+
+在 `config/enum-options.php` 中控制自动发现：
+
+```php
+// 自动发现 src/Presets 中的预设枚举
+'auto_discover_presets' => true,
+
+// 自动发现 app/Enums 中的应用枚举
+'auto_discover_app_enums' => true,
+
+// 自定义扫描路径
+'app_enums_paths' => [
+    app_path('Enums'),
+    app_path('Domain/Shared/Enums'),  // 额外路径
+],
+```
+
 ## API 路由（可选）
 
 扩展包可以自动注册 API 路由，为前端提供枚举选项。
@@ -323,6 +418,7 @@ php artisan vendor:publish --tag=enum-options-config
 启用后，将自动注册以下端点:
 
 ```bash
+GET /api/enums/list                   # 获取所有可用枚举的元数据
 GET /api/enums/all                    # 获取所有枚举选项（推荐）
 GET /api/enums/payment-methods        # 支付方式
 GET /api/enums/payment-statuses       # 支付状态
@@ -337,20 +433,71 @@ GET /api/enums/publish-statuses       # 发布状态
 
 ### 响应格式
 
-所有端点返回以下格式的数据:
+**枚举列表端点** (`GET /api/enums/list`):
+
+返回所有可用枚举的元数据：
 
 ```json
 {
   "code": 200,
   "msg": "success",
-  "data": [
-    {
-      "value": "wechat",
-      "label": "微信支付",
-      "color": "green",
-      "icon": "wechat"
-    }
-  ]
+  "data": {
+    "list": [
+      {
+        "key": "payment_methods",
+        "name": "支付方式",
+        "description": "所有可用的支付方式选项",
+        "route": "/enums/payment-methods",
+        "count": 13,
+        "category": "payment"
+      }
+    ],
+    "total": 9
+  }
+}
+```
+
+**单个枚举端点** (例如 `GET /api/enums/payment-methods`):
+
+返回标准列表格式的枚举选项：
+
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "list": [
+      {
+        "value": "wechat",
+        "label": "微信支付",
+        "color": "green",
+        "icon": "wechat"
+      },
+      {
+        "value": "alipay",
+        "label": "支付宝",
+        "color": "blue",
+        "icon": "alipay"
+      }
+    ],
+    "total": 13
+  }
+}
+```
+
+**所有枚举端点** (`GET /api/enums/all`):
+
+返回按 key 分组的所有枚举选项：
+
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "payment_methods": [...],
+    "payment_statuses": [...],
+    "order_statuses": [...]
+  }
 }
 ```
 
@@ -432,7 +579,7 @@ const paymentMethods = ref([])
 onMounted(async () => {
   // 从后端获取枚举选项
   const { data } = await axios.get('/api/enums/payment-methods')
-  paymentMethods.value = data.data
+  paymentMethods.value = data.data.list  // 从响应中访问 list
 })
 </script>
 ```

@@ -7,10 +7,6 @@ namespace WeiJuKeJi\EnumOptions\Traits;
  *
  * 为 PHP 8.1+ 枚举提供前端友好的选项支持
  * 包含：中文标签、颜色、图标、下拉选项等
- *
- * @method string label() 返回中文标签
- * @method string color() 返回颜色标识
- * @method string|null icon() 返回图标名称（可选）
  */
 trait EnumOptions
 {

@@ -297,6 +297,101 @@ if (PaymentMethodEnum::isValid($input)) {
 $enum = PaymentMethodEnum::fromValue($nullable);  // Returns null if value is null or invalid
 ```
 
+### Safe Array Conversion with Fallback
+
+When dealing with legacy data or external systems, you might have invalid enum values in your database. Use `toArraySafe()` to handle these gracefully without throwing exceptions:
+
+```php
+// Safe conversion - returns fallback object for invalid values
+$result = PaymentStatusEnum::toArraySafe('old_invalid_status');
+// Result: [
+//     'value' => 'old_invalid_status',
+//     'label' => 'old_invalid_status',  // or transformed based on config
+//     'color' => 'default',
+//     'icon' => null
+// ]
+
+// Use in API Resources to handle any value safely
+class OrderResource extends JsonResource
+{
+    public function toArray($request): array
+    {
+        return [
+            'id' => $this->id,
+            // Will never throw exception even if status value is invalid
+            'status' => OrderStatusEnum::toArraySafe($this->status),
+        ];
+    }
+}
+```
+
+Configure fallback behavior in `config/enum-options.php`:
+
+```php
+// Fallback color for invalid values
+'fallback_color' => 'default',
+
+// Label transformation strategy: none, upper, lower, ucfirst, ucwords
+'fallback_label_transform' => 'ucwords',  // 'old_status' -> 'Old Status'
+
+// Custom labels for specific invalid values
+'fallback_labels' => [
+    'legacy_paid' => 'Paid (Legacy)',
+    'unknown' => 'Unknown Status',
+],
+```
+
+## Automatic Enum Discovery
+
+The package automatically discovers and registers enums without manual configuration.
+
+### How It Works
+
+1. **Preset Enums**: Automatically scanned from `src/Presets` directory
+2. **App Enums**: Automatically scanned from `app/Enums` directory
+3. **No Maintenance Required**: Just create enum files, they're discovered automatically
+
+### Adding New Enums
+
+Simply create a new enum file with the `EnumOptions` trait:
+
+```php
+// app/Enums/ShippingStatusEnum.php
+namespace App\Enums;
+
+use WeiJuKeJi\EnumOptions\Traits\EnumOptions;
+
+enum ShippingStatusEnum: string
+{
+    use EnumOptions;
+
+    case PENDING = 'pending';
+    case SHIPPED = 'shipped';
+
+    public function label(): string { return $this->value; }
+}
+```
+
+The enum is **automatically registered** and available via API without any configuration.
+
+### Configure Discovery
+
+Control auto-discovery in `config/enum-options.php`:
+
+```php
+// Auto-discover preset enums from src/Presets
+'auto_discover_presets' => true,
+
+// Auto-discover app enums from app/Enums
+'auto_discover_app_enums' => true,
+
+// Customize scan paths
+'app_enums_paths' => [
+    app_path('Enums'),
+    app_path('Domain/Shared/Enums'),  // Additional paths
+],
+```
+
 ## API Routes (Optional)
 
 The package can automatically register API routes to provide enum options to your frontend.
@@ -323,6 +418,7 @@ Enable auto routes in `config/enum-options.php`:
 Once enabled, the following endpoints will be available:
 
 ```bash
+GET /api/enums/list                   # Get metadata of all available enums
 GET /api/enums/all                    # Get all enum options (recommended)
 GET /api/enums/payment-methods        # Payment methods
 GET /api/enums/payment-statuses       # Payment statuses
@@ -337,20 +433,71 @@ GET /api/enums/publish-statuses       # Publish statuses
 
 ### Response Format
 
-All endpoints return data in this format:
+**Enum List Endpoint** (`GET /api/enums/list`):
+
+Returns metadata about all available enums:
 
 ```json
 {
   "code": 200,
   "msg": "success",
-  "data": [
-    {
-      "value": "wechat",
-      "label": "微信支付",
-      "color": "green",
-      "icon": "wechat"
-    }
-  ]
+  "data": {
+    "list": [
+      {
+        "key": "payment_methods",
+        "name": "Payment Methods",
+        "description": "All available payment method options",
+        "route": "/enums/payment-methods",
+        "count": 13,
+        "category": "payment"
+      }
+    ],
+    "total": 9
+  }
+}
+```
+
+**Single Enum Endpoints** (e.g., `GET /api/enums/payment-methods`):
+
+Returns enum options in a standardized list format:
+
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "list": [
+      {
+        "value": "wechat",
+        "label": "微信支付",
+        "color": "green",
+        "icon": "wechat"
+      },
+      {
+        "value": "alipay",
+        "label": "支付宝",
+        "color": "blue",
+        "icon": "alipay"
+      }
+    ],
+    "total": 13
+  }
+}
+```
+
+**All Enums Endpoint** (`GET /api/enums/all`):
+
+Returns all enum options grouped by key:
+
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "payment_methods": [...],
+    "payment_statuses": [...],
+    "order_statuses": [...]
+  }
 }
 ```
 
@@ -430,9 +577,9 @@ import axios from 'axios'
 const paymentMethods = ref([])
 
 onMounted(async () => {
-  // Fetch enum options from backend (implement your own endpoint)
+  // Fetch enum options from backend
   const { data } = await axios.get('/api/enums/payment-methods')
-  paymentMethods.value = data.data
+  paymentMethods.value = data.data.list  // Access the list from response
 })
 </script>
 ```
