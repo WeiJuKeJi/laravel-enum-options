@@ -97,6 +97,74 @@ trait EnumOptions
     }
 
     /**
+     * 安全地将枚举值转换为数组
+     * 如果值无效，返回包含原始值的降级对象而不是 null
+     *
+     * @param string|null $value 枚举值
+     * @return array|null 如果 value 为 null 返回 null，否则返回数组
+     */
+    public static function toArraySafe(?string $value): ?array
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        // 尝试转换为枚举实例
+        $enum = static::fromValue($value);
+
+        // 成功匹配枚举，返回完整信息
+        if ($enum !== null) {
+            return $enum->toArray();
+        }
+
+        // 枚举值无效，返回降级对象
+        return static::buildFallbackArray($value);
+    }
+
+    /**
+     * 构建降级数组（当枚举值无效时使用）
+     *
+     * @param string $value 原始值
+     * @return array{value: string, label: string, color: string, icon: null}
+     */
+    protected static function buildFallbackArray(string $value): array
+    {
+        return [
+            'value' => $value,
+            'label' => static::getFallbackLabel($value),
+            'color' => config('enum-options.fallback_color', 'default'),
+            'icon' => null,
+        ];
+    }
+
+    /**
+     * 获取降级标签
+     * 优先查找配置，否则返回原始值
+     *
+     * @param string $value 原始值
+     * @return string
+     */
+    protected static function getFallbackLabel(string $value): string
+    {
+        // 尝试从配置中获取自定义降级标签
+        $customLabel = config("enum-options.fallback_labels.{$value}");
+        if ($customLabel) {
+            return $customLabel;
+        }
+
+        // 根据配置的转换策略处理标签
+        $transform = config('enum-options.fallback_label_transform', 'none');
+
+        return match ($transform) {
+            'upper' => strtoupper($value),
+            'lower' => strtolower($value),
+            'ucfirst' => ucfirst($value),
+            'ucwords' => ucwords(str_replace('_', ' ', $value)),
+            default => $value,
+        };
+    }
+
+    /**
      * 获取枚举名称（用于配置查找）
      */
     private function getEnumName(): string
