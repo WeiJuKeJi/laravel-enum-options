@@ -4,44 +4,44 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/weijukeji/laravel-enum-options.svg?style=flat-square)](https://packagist.org/packages/weijukeji/laravel-enum-options)
 [![License](https://img.shields.io/packagist/l/weijukeji/laravel-enum-options.svg?style=flat-square)](https://packagist.org/packages/weijukeji/laravel-enum-options)
 
-English | [简体中文](README.zh-CN.md)
+[English](README.md) | 简体中文
 
-A Laravel package for handling enums with frontend-friendly options (labels, colors, icons) and multi-language support.
+一个为 Laravel 设计的枚举扩展包，提供前端友好的选项（标签、颜色、图标）和多语言支持。
 
-## Features
+## 特性
 
-- 🎨 **Frontend-Friendly**: Built-in support for labels, colors, and icons
-- 🌍 **Multi-Language**: Full i18n support with fallback mechanism
-- 📦 **Preset Enums**: 10+ ready-to-use enum classes for common scenarios
-- 🎯 **Flexible**: Use presets as-is, publish and customize, or create your own
-- ⚙️ **Configurable**: Override labels and colors without modifying enum classes
-- 🛠️ **Artisan Commands**: Generate, publish, and list enums with ease
-- 🔄 **Resource Integration**: Works seamlessly with Laravel API Resources
+- 🎨 **前端友好**: 内置标签、颜色和图标支持
+- 🌍 **多语言**: 完整的 i18n 支持，带回退机制
+- 📦 **预设枚举**: 10+ 开箱即用的枚举类，覆盖常见业务场景
+- 🎯 **灵活使用**: 直接使用预设、发布定制或完全自定义
+- ⚙️ **配置覆盖**: 无需修改枚举类即可覆盖标签和颜色
+- 🛠️ **Artisan 命令**: 轻松生成、发布和列出枚举
+- 🔄 **Resource 集成**: 与 Laravel API Resources 无缝协作
 
-## Requirements
+## 环境要求
 
 - PHP 8.1+
-- Laravel 10.x, 11.x, or 12.x
+- Laravel 10.x, 11.x 或 12.x
 
-## Installation
+## 安装
 
-Install the package via Composer:
+通过 Composer 安装扩展包:
 
 ```bash
 composer require weijukeji/laravel-enum-options
 ```
 
-Publish the configuration file (optional):
+发布配置文件（可选）:
 
 ```bash
 php artisan vendor:publish --tag=enum-options-config
 ```
 
-## Quick Start
+## 快速开始
 
-### Using Preset Enums
+### 使用预设枚举
 
-Use built-in preset enums directly:
+直接使用内置的预设枚举:
 
 ```php
 use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
@@ -51,7 +51,7 @@ echo $method->label();  // 微信支付
 echo $method->color();  // green
 echo $method->icon();   // wechat
 
-// Get all options for dropdown
+// 获取所有选项用于下拉框
 $options = PaymentMethodEnum::options();
 // [
 //     ['value' => 'wechat', 'label' => '微信支付', 'color' => 'green', 'icon' => 'wechat'],
@@ -60,32 +60,32 @@ $options = PaymentMethodEnum::options();
 // ]
 ```
 
-### Publishing Presets to Your App
+### 发布预设到项目
 
-Publish preset enums to customize them:
+发布预设枚举以便自定义:
 
 ```bash
-# Publish a specific preset
+# 发布指定预设
 php artisan enum:publish PaymentMethod
 
-# Publish all presets
+# 发布所有预设
 php artisan enum:publish --all
 
-# Publish with translation files
+# 发布时包含翻译文件
 php artisan enum:publish PaymentMethod --with-translations
 ```
 
-The enum will be published to `app/Enums/PaymentMethodEnum.php` and you can freely modify it.
+枚举将发布到 `app/Enums/PaymentMethodEnum.php`，你可以自由修改。
 
-### Creating Custom Enums
+### 创建自定义枚举
 
-Create your own enum from scratch:
+从头创建自己的枚举:
 
 ```bash
 php artisan make:enum SubscriptionStatus --values=active,paused,cancelled --labels
 ```
 
-This generates:
+这将生成:
 
 ```php
 <?php
@@ -105,9 +105,9 @@ enum SubscriptionStatusEnum: string
     public function label(): string
     {
         return $this->trans($this->value, match ($this) {
-            self::ACTIVE => 'Active',
-            self::PAUSED => 'Paused',
-            self::CANCELLED => 'Cancelled',
+            self::ACTIVE => '活跃',
+            self::PAUSED => '暂停',
+            self::CANCELLED => '已取消',
         });
     }
 
@@ -119,48 +119,48 @@ enum SubscriptionStatusEnum: string
         }
 
         return match ($this) {
-            // TODO: Define colors for each case
+            // TODO: 为每个状态定义颜色
             default => 'default',
         };
     }
 }
 ```
 
-## Available Preset Enums
+## 可用的预设枚举
 
-### Payment
-- **PaymentMethodEnum**: wechat, alipay, bank_transfer, cash, credit_card, debit_card, union_pay, paypal, apple_pay, google_pay, pos, wechat_pos, other
-- **PaymentStatusEnum**: unpaid, pending, paying, paid, failed, cancelled, refunding, refunded, partially_refunded, timeout
-- **RefundStatusEnum**: none, pending, processing, partial, full, failed, rejected
+### 支付相关 (Payment)
+- **PaymentMethodEnum**: 微信、支付宝、银行转账、现金、信用卡、借记卡、云闪付、PayPal、Apple Pay、Google Pay、POS机、微信POS、其他
+- **PaymentStatusEnum**: 未支付、待支付、支付中、已支付、支付失败、已取消、退款中、已退款、部分退款、超时
+- **RefundStatusEnum**: 无退款、待退款、退款处理中、部分退款、全额退款、退款失败、退款拒绝
 
-### Order
-- **OrderStatusEnum**: pending, confirmed, processing, completed, cancelled, expired, failed, on_hold, refunded, partially_refunded
-- **OrderTypeEnum**: standard, presale, group_buy, flash_sale, subscription, gift, exchange
+### 订单相关 (Order)
+- **OrderStatusEnum**: 待处理、已确认、处理中、已完成、已取消、已过期、失败、挂起、已退款、部分退款
+- **OrderTypeEnum**: 标准订单、预售、团购、限时抢购、订阅、赠品、换货
 
-### User
-- **UserStatusEnum**: active, inactive, suspended, banned, deleted, pending_verification
-- **GenderEnum**: male, female, other, prefer_not_to_say
+### 用户相关 (User)
+- **UserStatusEnum**: 活跃、未激活、已暂停、已封禁、已删除、待验证
+- **GenderEnum**: 男、女、其他、不愿透露
 
-### Business
-- **ApprovalStatusEnum**: draft, pending, approved, rejected, cancelled, revoked
-- **PublishStatusEnum**: draft, scheduled, published, unpublished, archived
+### 业务相关 (Business)
+- **ApprovalStatusEnum**: 草稿、待审批、已通过、已拒绝、已取消、已撤销
+- **PublishStatusEnum**: 草稿、定时发布、已发布、已下架、已归档
 
-## List Available Presets
+## 列出可用预设
 
 ```bash
-# List all presets
+# 列出所有预设
 php artisan enum:list-presets
 
-# Show details of a specific preset
+# 显示指定预设的详情
 php artisan enum:list-presets PaymentMethod
 
-# Output as JSON
+# 以 JSON 格式输出
 php artisan enum:list-presets --json
 ```
 
-## Usage in API Resources
+## 在 API Resource 中使用
 
-Use enums in your API Resources to automatically format status fields:
+在 API Resources 中使用枚举自动格式化状态字段:
 
 ```php
 use App\Enums\OrderStatusEnum;
@@ -175,17 +175,17 @@ class OrderResource extends JsonResource
             'id' => $this->id,
             'order_no' => $this->order_no,
 
-            // Transform enum fields to objects with value, label, color
+            // 将枚举字段转换为包含 value, label, color 的对象
             'status' => OrderStatusEnum::fromValue($this->status)?->toArray(),
             'payment_method' => PaymentMethodEnum::fromValue($this->payment_method)?->toArray(),
 
-            // Other fields...
+            // 其他字段...
         ];
     }
 }
 ```
 
-API Response:
+API 响应:
 
 ```json
 {
@@ -205,23 +205,23 @@ API Response:
 }
 ```
 
-## Configuration
+## 配置
 
-### Override Labels
+### 覆盖标签
 
-Override labels without modifying enum classes:
+无需修改枚举类即可覆盖标签:
 
 ```php
 // config/enum-options.php
 'label_overrides' => [
     'payment_method' => [
-        'wechat' => '微信',  // Simplified label
-        'pos' => 'POS刷卡',  // Custom terminology
+        'wechat' => '微信',     // 简化标签
+        'pos' => 'POS刷卡',     // 自定义术语
     ],
 ],
 ```
 
-### Override Colors
+### 覆盖颜色
 
 ```php
 // config/enum-options.php
@@ -233,20 +233,20 @@ Override labels without modifying enum classes:
 ],
 ```
 
-### Change Color Scheme
+### 更改颜色方案
 
-Support for different UI frameworks:
+支持不同的 UI 框架:
 
 ```php
 // config/enum-options.php
-'color_scheme' => 'element-plus',  // or 'ant-design', 'tailwind', 'bootstrap'
+'color_scheme' => 'element-plus',  // 或 'ant-design', 'tailwind', 'bootstrap'
 ```
 
-## Multi-Language Support
+## 多语言支持
 
-### Using Translation Files
+### 使用翻译文件
 
-Create translation files in your application:
+在你的应用中创建翻译文件:
 
 ```php
 // lang/zh-CN/enums.php
@@ -258,32 +258,32 @@ return [
 ];
 ```
 
-Enums will automatically use these translations with fallback to preset translations.
+枚举将自动使用这些翻译，并回退到预设翻译。
 
-### Translation Priority
+### 翻译优先级
 
-1. User-defined translations (`lang/{locale}/enums.php`)
-2. Config overrides (`config/enum-options.php`)
-3. Package preset translations (`lang/{locale}/presets.php`)
-4. Default values in enum class
+1. 用户自定义翻译 (`lang/{locale}/enums.php`)
+2. 配置覆盖 (`config/enum-options.php`)
+3. 扩展包预设翻译 (`lang/{locale}/presets.php`)
+4. 枚举类中的默认值
 
-## Advanced Usage
+## 高级用法
 
-### Get All Values
+### 获取所有值
 
 ```php
 $values = PaymentMethodEnum::values();
 // ['wechat', 'alipay', 'bank_transfer', ...]
 ```
 
-### Get All Labels
+### 获取所有标签
 
 ```php
 $labels = PaymentMethodEnum::labels();
 // ['wechat' => '微信支付', 'alipay' => '支付宝', ...]
 ```
 
-### Validate Values
+### 验证值
 
 ```php
 if (PaymentMethodEnum::isValid($input)) {
@@ -291,25 +291,25 @@ if (PaymentMethodEnum::isValid($input)) {
 }
 ```
 
-### Safe Conversion
+### 安全转换
 
 ```php
-$enum = PaymentMethodEnum::fromValue($nullable);  // Returns null if value is null or invalid
+$enum = PaymentMethodEnum::fromValue($nullable);  // 如果值为 null 或无效则返回 null
 ```
 
-## API Routes (Optional)
+## API 路由（可选）
 
-The package can automatically register API routes to provide enum options to your frontend.
+扩展包可以自动注册 API 路由，为前端提供枚举选项。
 
-### Enable Auto Routes
+### 启用自动路由
 
-Publish and edit the config file:
+发布并编辑配置文件:
 
 ```bash
 php artisan vendor:publish --tag=enum-options-config
 ```
 
-Enable auto routes in `config/enum-options.php`:
+在 `config/enum-options.php` 中启用自动路由:
 
 ```php
 'auto_register_routes' => true,
@@ -318,26 +318,26 @@ Enable auto routes in `config/enum-options.php`:
 'route_name_prefix' => 'enums',
 ```
 
-### Available Endpoints
+### 可用端点
 
-Once enabled, the following endpoints will be available:
+启用后，将自动注册以下端点:
 
 ```bash
-GET /api/enums/all                    # Get all enum options (recommended)
-GET /api/enums/payment-methods        # Payment methods
-GET /api/enums/payment-statuses       # Payment statuses
-GET /api/enums/refund-statuses        # Refund statuses
-GET /api/enums/order-statuses         # Order statuses
-GET /api/enums/order-types            # Order types
-GET /api/enums/user-statuses          # User statuses
-GET /api/enums/genders                # Genders
-GET /api/enums/approval-statuses      # Approval statuses
-GET /api/enums/publish-statuses       # Publish statuses
+GET /api/enums/all                    # 获取所有枚举选项（推荐）
+GET /api/enums/payment-methods        # 支付方式
+GET /api/enums/payment-statuses       # 支付状态
+GET /api/enums/refund-statuses        # 退款状态
+GET /api/enums/order-statuses         # 订单状态
+GET /api/enums/order-types            # 订单类型
+GET /api/enums/user-statuses          # 用户状态
+GET /api/enums/genders                # 性别
+GET /api/enums/approval-statuses      # 审批状态
+GET /api/enums/publish-statuses       # 发布状态
 ```
 
-### Response Format
+### 响应格式
 
-All endpoints return data in this format:
+所有端点返回以下格式的数据:
 
 ```json
 {
@@ -354,7 +354,7 @@ All endpoints return data in this format:
 }
 ```
 
-The response format can be customized in config:
+响应格式可在配置中自定义:
 
 ```php
 'response_format' => [
@@ -364,9 +364,9 @@ The response format can be customized in config:
 ],
 ```
 
-### Manual Route Registration
+### 手动注册路由
 
-If you prefer manual control, keep `auto_register_routes` as `false` and register routes yourself:
+如果你希望手动控制，保持 `auto_register_routes` 为 `false` 并自己注册路由:
 
 ```php
 // routes/api.php
@@ -375,11 +375,11 @@ use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
 Route::prefix('enums')->middleware('auth:sanctum')->group(function () {
     Route::get('all', [EnumController::class, 'all']);
     Route::get('payment-methods', [EnumController::class, 'paymentMethods']);
-    // ... other routes
+    // ... 其他路由
 });
 ```
 
-Or create your own controller:
+或创建自己的控制器:
 
 ```php
 namespace App\Http\Controllers;
@@ -398,18 +398,18 @@ class MyEnumController extends Controller
 }
 ```
 
-## Frontend Integration
+## 前端集成
 
-### Vue 3 Example
+### Vue 3 示例
 
 ```vue
 <template>
-  <!-- Display with color -->
+  <!-- 显示带颜色的状态 -->
   <el-tag :type="order.status.color">
     {{ order.status.label }}
   </el-tag>
 
-  <!-- Dropdown selection -->
+  <!-- 下拉选择 -->
   <el-select v-model="filters.payment_method">
     <el-option
       v-for="method in paymentMethods"
@@ -430,14 +430,14 @@ import axios from 'axios'
 const paymentMethods = ref([])
 
 onMounted(async () => {
-  // Fetch enum options from backend (implement your own endpoint)
+  // 从后端获取枚举选项
   const { data } = await axios.get('/api/enums/payment-methods')
   paymentMethods.value = data.data
 })
 </script>
 ```
 
-### React Example
+### React 示例
 
 ```jsx
 import { useEffect, useState } from 'react'
@@ -446,7 +446,7 @@ function OrderList() {
   const [enums, setEnums] = useState({})
 
   useEffect(() => {
-    // Fetch all enums at once
+    // 一次性获取所有枚举
     fetch('/api/enums/all')
       .then(res => res.json())
       .then(data => setEnums(data.data))
@@ -454,12 +454,12 @@ function OrderList() {
 
   return (
     <div>
-      {/* Display status with color */}
+      {/* 显示带颜色的状态 */}
       <Badge color={order.status.color}>
         {order.status.label}
       </Badge>
 
-      {/* Dropdown */}
+      {/* 下拉选择 */}
       <Select>
         {enums.payment_methods?.map(method => (
           <Option key={method.value} value={method.value}>
@@ -472,29 +472,36 @@ function OrderList() {
 }
 ```
 
-## Testing
+## 更多文档
+
+- [前端集成完整指南](docs/FRONTEND_INTEGRATION_GUIDE.md)
+- [前端 5 分钟快速上手](docs/zh-CN/frontend-quick-start.md)
+- [后端快速上手指南](docs/zh-CN/quick-start.md)
+- [完整使用示例](EXAMPLES.php)
+
+## 测试
 
 ```bash
 composer test
 ```
 
-## Changelog
+## 更新日志
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+请查看 [CHANGELOG](CHANGELOG.md) 了解最近的变更。
 
-## Contributing
+## 贡献
 
-Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+欢迎贡献代码！请查看 [CONTRIBUTING](CONTRIBUTING.md) 了解详情。
 
-## Security
+## 安全
 
-If you discover any security-related issues, please email your.email@example.com instead of using the issue tracker.
+如果你发现任何安全相关的问题，请发送邮件至 ruihuachen@qq.com，而不是使用 issue 追踪器。
 
-## Credits
+## 致谢
 
-- [Your Name](https://github.com/your-username)
-- [All Contributors](../../contributors)
+- [Ruihua](https://github.com/WeiJuKeJi)
+- [所有贡献者](../../contributors)
 
-## License
+## 许可证
 
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+MIT 许可证。详情请查看 [License File](LICENSE.md)。

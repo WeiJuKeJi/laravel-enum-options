@@ -126,21 +126,21 @@ php artisan enum:list-presets --json
 ```php
 // config/enum-options.php
 'auto_register_routes' => true,
-'route_prefix' => 'api/v1/enums',
+'route_prefix' => 'api/enums',
 'route_middleware' => ['auth:sanctum'],
 ```
 
 **可用接口**:
-- `GET /api/v1/enums/all` - 获取所有枚举（推荐）
-- `GET /api/v1/enums/payment-methods` - 支付方式
-- `GET /api/v1/enums/payment-statuses` - 支付状态
-- `GET /api/v1/enums/refund-statuses` - 退款状态
-- `GET /api/v1/enums/order-statuses` - 订单状态
-- `GET /api/v1/enums/order-types` - 订单类型
-- `GET /api/v1/enums/user-statuses` - 用户状态
-- `GET /api/v1/enums/genders` - 性别
-- `GET /api/v1/enums/approval-statuses` - 审批状态
-- `GET /api/v1/enums/publish-statuses` - 发布状态
+- `GET /api/enums/all` - 获取所有枚举（推荐）
+- `GET /api/enums/payment-methods` - 支付方式
+- `GET /api/enums/payment-statuses` - 支付状态
+- `GET /api/enums/refund-statuses` - 退款状态
+- `GET /api/enums/order-statuses` - 订单状态
+- `GET /api/enums/order-types` - 订单类型
+- `GET /api/enums/user-statuses` - 用户状态
+- `GET /api/enums/genders` - 性别
+- `GET /api/enums/approval-statuses` - 审批状态
+- `GET /api/enums/publish-statuses` - 发布状态
 
 **响应格式**:
 ```json

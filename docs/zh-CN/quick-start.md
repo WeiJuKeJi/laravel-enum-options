@@ -173,7 +173,7 @@ php artisan vendor:publish --tag=enum-options-config
 ```php
 // config/enum-options.php
 'auto_register_routes' => true,
-'route_prefix' => 'api/v1/enums',
+'route_prefix' => 'api/enums',
 'route_middleware' => ['auth:sanctum'],
 'route_name_prefix' => 'enums',
 ```
@@ -181,16 +181,16 @@ php artisan vendor:publish --tag=enum-options-config
 启用后，自动注册以下接口:
 
 ```bash
-GET /api/v1/enums/all                    # 获取所有枚举（推荐）
-GET /api/v1/enums/payment-methods        # 支付方式
-GET /api/v1/enums/payment-statuses       # 支付状态
-GET /api/v1/enums/refund-statuses        # 退款状态
-GET /api/v1/enums/order-statuses         # 订单状态
-GET /api/v1/enums/order-types            # 订单类型
-GET /api/v1/enums/user-statuses          # 用户状态
-GET /api/v1/enums/genders                # 性别
-GET /api/v1/enums/approval-statuses      # 审批状态
-GET /api/v1/enums/publish-statuses       # 发布状态
+GET /api/enums/all                    # 获取所有枚举（推荐）
+GET /api/enums/payment-methods        # 支付方式
+GET /api/enums/payment-statuses       # 支付状态
+GET /api/enums/refund-statuses        # 退款状态
+GET /api/enums/order-statuses         # 订单状态
+GET /api/enums/order-types            # 订单类型
+GET /api/enums/user-statuses          # 用户状态
+GET /api/enums/genders                # 性别
+GET /api/enums/approval-statuses      # 审批状态
+GET /api/enums/publish-statuses       # 发布状态
 ```
 
 响应格式:
@@ -283,7 +283,7 @@ class MyEnumController extends Controller
 </template>
 
 <script setup>
-const { data } = await axios.get('/api/v1/enums/payment-methods')
+const { data } = await axios.get('/api/enums/payment-methods')
 const paymentMethods = data.data
 </script>
 ```
@@ -297,7 +297,7 @@ function OrderList() {
   const [enums, setEnums] = useState({})
 
   useEffect(() => {
-    fetch('/api/v1/enums/all')
+    fetch('/api/enums/all')
       .then(res => res.json())
       .then(data => setEnums(data.data))
   }, [])
@@ -368,7 +368,7 @@ import axios from 'axios'
 const app = createApp(App)
 
 // 启动时获取所有枚举
-const { data } = await axios.get('/api/v1/enums/all')
+const { data } = await axios.get('/api/enums/all')
 app.config.globalProperties.$enums = data.data
 
 app.mount('#app')

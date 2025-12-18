@@ -18,7 +18,7 @@
 
 ### 基础信息
 
-- **Base URL**: `http://your-api.com/api/v1/enums`
+- **Base URL**: `http://your-api.com/api/enums`
 - **认证方式**: Bearer Token (Sanctum)
 - **请求方法**: GET
 - **响应格式**: JSON
@@ -28,7 +28,7 @@
 #### 1. 获取所有枚举（推荐）
 
 ```http
-GET /api/v1/enums/all
+GET /api/enums/all
 ```
 
 **响应示例**:
@@ -77,15 +77,15 @@ GET /api/v1/enums/all
 #### 2. 获取单个枚举类型
 
 ```http
-GET /api/v1/enums/payment-methods
-GET /api/v1/enums/payment-statuses
-GET /api/v1/enums/refund-statuses
-GET /api/v1/enums/order-statuses
-GET /api/v1/enums/order-types
-GET /api/v1/enums/user-statuses
-GET /api/v1/enums/genders
-GET /api/v1/enums/approval-statuses
-GET /api/v1/enums/publish-statuses
+GET /api/enums/payment-methods
+GET /api/enums/payment-statuses
+GET /api/enums/refund-statuses
+GET /api/enums/order-statuses
+GET /api/enums/order-types
+GET /api/enums/user-statuses
+GET /api/enums/genders
+GET /api/enums/approval-statuses
+GET /api/enums/publish-statuses
 ```
 
 **响应示例**:
@@ -148,7 +148,7 @@ interface Order {
 - 适合枚举数据稳定的场景
 
 **实现思路**:
-1. 应用初始化时调用 `/api/v1/enums/all`
+1. 应用初始化时调用 `/api/enums/all`
 2. 将数据存储到全局状态管理（Vuex/Pinia/Redux/Context）
 3. 各组件从全局状态读取
 
@@ -248,7 +248,7 @@ export const useEnumStore = defineStore('enum', {
       if (this.loaded) return
 
       try {
-        const { data } = await axios.get('/api/v1/enums/all')
+        const { data } = await axios.get('/api/enums/all')
 
         if (data.code === 200) {
           Object.assign(this, data.data)
@@ -426,7 +426,7 @@ import axios from 'axios'
 const enums = ref({})
 
 onMounted(async () => {
-  const { data } = await axios.get('/api/v1/enums/all')
+  const { data } = await axios.get('/api/enums/all')
   enums.value = data.data
 })
 
@@ -499,7 +499,7 @@ export const EnumProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const loadEnums = async () => {
     try {
-      const { data } = await axios.get('/api/v1/enums/all')
+      const { data } = await axios.get('/api/enums/all')
 
       if (data.code === 200) {
         setEnums({
@@ -894,7 +894,7 @@ const loadEnums = async () => {
   }
 
   // 请求新数据
-  const { data } = await axios.get('/api/v1/enums/all')
+  const { data } = await axios.get('/api/enums/all')
   setEnums(data.data)
 
   // 更新缓存
@@ -910,7 +910,7 @@ const loadEnums = async () => {
 const loadPaymentMethods = async () => {
   if (enums.paymentMethods.length > 0) return
 
-  const { data } = await axios.get('/api/v1/enums/payment-methods')
+  const { data } = await axios.get('/api/enums/payment-methods')
   enums.paymentMethods = data.data
 }
 ```
@@ -924,7 +924,7 @@ let enumsPromise: Promise<any> | null = null
 const loadEnums = () => {
   if (enumsPromise) return enumsPromise
 
-  enumsPromise = axios.get('/api/v1/enums/all')
+  enumsPromise = axios.get('/api/enums/all')
     .then(response => {
       enumsPromise = null
       return response.data
@@ -1041,7 +1041,7 @@ axios.interceptors.request.use(config => {
 
 ## 总结
 
-1. **推荐使用 `/api/v1/enums/all` 一次性获取所有枚举**
+1. **推荐使用 `/api/enums/all` 一次性获取所有枚举**
 2. **应用启动时加载并存储到全局状态**
 3. **使用 localStorage 缓存提高性能**
 4. **定义 TypeScript 类型提高开发体验**
@@ -1095,7 +1095,7 @@ export const getPaymentMethods = () => api.get('/enums/payment-methods')
 const getEnums = async () => {
   const token = localStorage.getItem('token')
 
-  const response = await fetch('http://your-api.com/api/v1/enums/all', {
+  const response = await fetch('http://your-api.com/api/enums/all', {
     headers: {
       'Authorization': `Bearer ${token}`,
       'Accept': 'application/json'

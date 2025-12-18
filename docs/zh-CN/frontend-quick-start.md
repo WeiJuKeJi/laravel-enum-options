@@ -6,7 +6,7 @@
 
 ### 第一步: 了解 API
 
-**接口地址**: `GET /api/v1/enums/all`
+**接口地址**: `GET /api/enums/all`
 
 **响应示例**:
 ```json
@@ -41,7 +41,7 @@ export const useEnumStore = defineStore('enum', {
     async load() {
       if (this.loaded) return
 
-      const { data } = await axios.get('/api/v1/enums/all')
+      const { data } = await axios.get('/api/enums/all')
       Object.assign(this, data.data)
       this.loaded = true
     }
@@ -110,7 +110,7 @@ export const EnumProvider = ({ children }) => {
   })
 
   useEffect(() => {
-    axios.get('/api/v1/enums/all').then(({ data }) => {
+    axios.get('/api/enums/all').then(({ data }) => {
       setEnums({
         paymentMethods: data.data.payment_methods,
         orderStatuses: data.data.order_statuses
@@ -228,7 +228,7 @@ const load = async () => {
   }
 
   // 请求数据
-  const { data } = await axios.get('/api/v1/enums/all')
+  const { data } = await axios.get('/api/enums/all')
   setEnums(data.data)
 
   // 写入缓存

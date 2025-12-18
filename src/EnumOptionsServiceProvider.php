@@ -59,7 +59,7 @@ class EnumOptionsServiceProvider extends ServiceProvider
      */
     protected function registerRoutes(): void
     {
-        $prefix = config('enum-options.route_prefix', 'api/v1/enums');
+        $prefix = config('enum-options.route_prefix', 'api/enums');
         $middleware = config('enum-options.route_middleware', []);
         $namePrefix = config('enum-options.route_name_prefix', 'enums');
 

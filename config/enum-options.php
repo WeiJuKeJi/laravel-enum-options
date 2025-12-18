@@ -106,7 +106,7 @@ return [
     | 当 auto_register_routes 为 true 时生效
     |
     */
-    'route_prefix' => 'api/v1/enums',
+    'route_prefix' => 'api/enums',
     'route_middleware' => ['auth:sanctum'],
     'route_name_prefix' => 'enums',
 

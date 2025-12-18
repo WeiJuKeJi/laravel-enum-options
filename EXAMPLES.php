@@ -148,15 +148,15 @@ class OrderResource extends JsonResource
 // config/enum-options.php
 /*
 'auto_register_routes' => true,
-'route_prefix' => 'api/v1/enums',
+'route_prefix' => 'api/enums',
 'route_middleware' => ['auth:sanctum'],
 'route_name_prefix' => 'enums',
 */
 
 // 自动注册以下接口:
-// GET /api/v1/enums/all
-// GET /api/v1/enums/payment-methods
-// GET /api/v1/enums/payment-statuses
+// GET /api/enums/all
+// GET /api/enums/payment-methods
+// GET /api/enums/payment-statuses
 // ... 等等
 
 // 方式 2: 使用内置控制器手动注册
@@ -330,7 +330,7 @@ import { ref, onMounted } from 'vue'
 const paymentMethods = ref([])
 
 onMounted(async () => {
-  const { data } = await axios.get('/api/v1/enums/payment-methods')
+  const { data } = await axios.get('/api/enums/payment-methods')
   paymentMethods.value = data.data
 })
 </script>
@@ -347,7 +347,7 @@ function OrderForm() {
   const [enums, setEnums] = useState({})
 
   useEffect(() => {
-    fetch('/api/v1/enums/all')
+    fetch('/api/enums/all')
       .then(res => res.json())
       .then(data => setEnums(data.data))
   }, [])
