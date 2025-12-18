@@ -13,6 +13,9 @@ use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
 |
 */
 
+// 获取所有可用的枚举项目列表（元数据）
+Route::get('list', [EnumController::class, 'list'])->name('list');
+
 // 获取所有枚举选项（推荐使用，一次性获取）
 Route::get('all', [EnumController::class, 'all'])->name('all');
 

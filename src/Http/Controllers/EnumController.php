@@ -13,6 +13,7 @@ use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentStatusEnum;
 use WeiJuKeJi\EnumOptions\Presets\Payment\RefundStatusEnum;
 use WeiJuKeJi\EnumOptions\Presets\User\GenderEnum;
 use WeiJuKeJi\EnumOptions\Presets\User\UserStatusEnum;
+use WeiJuKeJi\EnumOptions\Support\EnumRegistry;
 
 /**
  * 枚举选项控制器
@@ -21,11 +22,22 @@ use WeiJuKeJi\EnumOptions\Presets\User\UserStatusEnum;
 class EnumController extends Controller
 {
     /**
+     * 获取所有可用的枚举项目列表
+     * 返回枚举元数据，包括名称、描述、路由等信息
+     */
+    public function list(): JsonResponse
+    {
+        $metadata = EnumRegistry::getMetadata();
+        return $this->respondWithList($metadata);
+    }
+
+    /**
      * 获取支付方式选项
      */
     public function paymentMethods(): JsonResponse
     {
-        return $this->respond(PaymentMethodEnum::options());
+        $options = PaymentMethodEnum::options();
+        return $this->respondWithList($options);
     }
 
     /**
@@ -33,7 +45,8 @@ class EnumController extends Controller
      */
     public function paymentStatuses(): JsonResponse
     {
-        return $this->respond(PaymentStatusEnum::options());
+        $options = PaymentStatusEnum::options();
+        return $this->respondWithList($options);
     }
 
     /**
@@ -41,7 +54,8 @@ class EnumController extends Controller
      */
     public function refundStatuses(): JsonResponse
     {
-        return $this->respond(RefundStatusEnum::options());
+        $options = RefundStatusEnum::options();
+        return $this->respondWithList($options);
     }
 
     /**
@@ -49,7 +63,8 @@ class EnumController extends Controller
      */
     public function orderStatuses(): JsonResponse
     {
-        return $this->respond(OrderStatusEnum::options());
+        $options = OrderStatusEnum::options();
+        return $this->respondWithList($options);
     }
 
     /**
@@ -57,7 +72,8 @@ class EnumController extends Controller
      */
     public function orderTypes(): JsonResponse
     {
-        return $this->respond(OrderTypeEnum::options());
+        $options = OrderTypeEnum::options();
+        return $this->respondWithList($options);
     }
 
     /**
@@ -65,7 +81,8 @@ class EnumController extends Controller
      */
     public function userStatuses(): JsonResponse
     {
-        return $this->respond(UserStatusEnum::options());
+        $options = UserStatusEnum::options();
+        return $this->respondWithList($options);
     }
 
     /**
@@ -73,7 +90,8 @@ class EnumController extends Controller
      */
     public function genders(): JsonResponse
     {
-        return $this->respond(GenderEnum::options());
+        $options = GenderEnum::options();
+        return $this->respondWithList($options);
     }
 
     /**
@@ -81,7 +99,8 @@ class EnumController extends Controller
      */
     public function approvalStatuses(): JsonResponse
     {
-        return $this->respond(ApprovalStatusEnum::options());
+        $options = ApprovalStatusEnum::options();
+        return $this->respondWithList($options);
     }
 
     /**
@@ -89,7 +108,8 @@ class EnumController extends Controller
      */
     public function publishStatuses(): JsonResponse
     {
-        return $this->respond(PublishStatusEnum::options());
+        $options = PublishStatusEnum::options();
+        return $this->respondWithList($options);
     }
 
     /**
@@ -111,7 +131,7 @@ class EnumController extends Controller
     }
 
     /**
-     * 统一响应格式
+     * 统一响应格式（对象数据）
      */
     protected function respond($data): JsonResponse
     {
@@ -125,6 +145,28 @@ class EnumController extends Controller
             $format['code_key'] => 200,
             $format['message_key'] => 'success',
             $format['data_key'] => $data,
+        ]);
+    }
+
+    /**
+     * 统一响应格式（列表数据）
+     * 按照规范返回 { "list": [], "total": n } 格式
+     */
+    protected function respondWithList(array $list): JsonResponse
+    {
+        $format = config('enum-options.response_format', [
+            'code_key' => 'code',
+            'message_key' => 'msg',
+            'data_key' => 'data',
+        ]);
+
+        return response()->json([
+            $format['code_key'] => 200,
+            $format['message_key'] => 'success',
+            $format['data_key'] => [
+                'list' => $list,
+                'total' => count($list),
+            ],
         ]);
     }
 }

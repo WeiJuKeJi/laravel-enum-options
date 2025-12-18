@@ -1,0 +1,537 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "枚举选项 API",
+    "description": "Laravel Enum Options 扩展包提供的枚举选项接口，用于为前端提供各类业务枚举数据（标签、颜色、图标）及多语言支持",
+    "version": "1.1.0"
+  },
+  "paths": {
+    "/enums/list": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取所有可用的枚举项目列表",
+        "description": "获取系统中所有可用的枚举类型及其基本信息，用于前端动态生成枚举选择器或了解可用的枚举类型\n\n**测试用例：**\n1. 获取所有枚举项目列表\n2. 用于前端动态加载可用枚举类型\n3. 用于管理后台展示系统枚举配置",
+        "operationId": "getEnumList",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      {
+                        "key": "payment_methods",
+                        "name": "支付方式",
+                        "description": "所有可用的支付方式选项",
+                        "route": "/enums/payment-methods",
+                        "count": 13,
+                        "category": "payment"
+                      },
+                      {
+                        "key": "payment_statuses",
+                        "name": "支付状态",
+                        "description": "所有可用的支付状态选项",
+                        "route": "/enums/payment-statuses",
+                        "count": 10,
+                        "category": "payment"
+                      }
+                    ],
+                    "total": 9
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/all": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取所有枚举选项",
+        "description": "一次性获取所有预设枚举的选项数据，推荐使用此接口减少请求次数\n\n**测试用例：**\n1. 获取所有枚举选项（推荐）\n2. 用于前端应用初始化时批量加载所有枚举数据",
+        "operationId": "getAllEnums",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "payment_methods": [
+                      { "value": "wechat", "label": "微信支付", "color": "green", "icon": "wechat" },
+                      { "value": "alipay", "label": "支付宝", "color": "blue", "icon": "alipay" },
+                      { "value": "bank_transfer", "label": "银行转账", "color": "default", "icon": "bank" }
+                    ],
+                    "payment_statuses": [
+                      { "value": "unpaid", "label": "未支付", "color": "default" },
+                      { "value": "paid", "label": "已支付", "color": "green" },
+                      { "value": "refunded", "label": "已退款", "color": "red" }
+                    ],
+                    "order_statuses": [
+                      { "value": "pending", "label": "待确认", "color": "default" },
+                      { "value": "confirmed", "label": "已确认", "color": "blue" },
+                      { "value": "completed", "label": "已完成", "color": "green" }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/payment-methods": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取支付方式选项",
+        "description": "获取所有可用的支付方式枚举选项\n\n**支持的支付方式：**\nwechat, alipay, bank_transfer, cash, credit_card, debit_card, union_pay, paypal, apple_pay, google_pay, pos, wechat_pos, other\n\n**测试用例：**\n1. 用于支付方式下拉选择\n2. 订单支付方式展示",
+        "operationId": "getPaymentMethods",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      { "value": "wechat", "label": "微信支付", "color": "green", "icon": "wechat" },
+                      { "value": "alipay", "label": "支付宝", "color": "blue", "icon": "alipay" },
+                      { "value": "bank_transfer", "label": "银行转账", "color": "default", "icon": "bank" },
+                      { "value": "cash", "label": "现金", "color": "orange", "icon": "cash" },
+                      { "value": "credit_card", "label": "信用卡", "color": "purple", "icon": "credit-card" },
+                      { "value": "debit_card", "label": "借记卡", "color": "blue", "icon": "debit-card" },
+                      { "value": "union_pay", "label": "银联", "color": "red", "icon": "union-pay" },
+                      { "value": "paypal", "label": "PayPal", "color": "blue", "icon": "paypal" },
+                      { "value": "apple_pay", "label": "Apple Pay", "color": "black", "icon": "apple-pay" },
+                      { "value": "google_pay", "label": "Google Pay", "color": "blue", "icon": "google-pay" },
+                      { "value": "pos", "label": "POS机", "color": "default", "icon": "pos" },
+                      { "value": "wechat_pos", "label": "微信POS", "color": "green", "icon": "wechat-pos" },
+                      { "value": "other", "label": "其他", "color": "default", "icon": "other" }
+                    ],
+                    "total": 13
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/payment-statuses": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取支付状态选项",
+        "description": "获取所有可用的支付状态枚举选项\n\n**支持的支付状态：**\nunpaid, pending, paying, paid, failed, cancelled, refunding, refunded, partially_refunded, timeout\n\n**测试用例：**\n1. 用于订单支付状态筛选\n2. 支付记录状态展示",
+        "operationId": "getPaymentStatuses",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      { "value": "unpaid", "label": "未支付", "color": "default" },
+                      { "value": "pending", "label": "待支付", "color": "orange" },
+                      { "value": "paying", "label": "支付中", "color": "blue" },
+                      { "value": "paid", "label": "已支付", "color": "green" },
+                      { "value": "failed", "label": "支付失败", "color": "red" },
+                      { "value": "cancelled", "label": "已取消", "color": "default" },
+                      { "value": "refunding", "label": "退款中", "color": "orange" },
+                      { "value": "refunded", "label": "已退款", "color": "red" },
+                      { "value": "partially_refunded", "label": "部分退款", "color": "orange" },
+                      { "value": "timeout", "label": "超时", "color": "red" }
+                    ],
+                    "total": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/refund-statuses": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取退款状态选项",
+        "description": "获取所有可用的退款状态枚举选项\n\n**支持的退款状态：**\nnone, pending, processing, partial, full, failed, rejected\n\n**测试用例：**\n1. 用于退款申请状态筛选\n2. 退款记录状态展示",
+        "operationId": "getRefundStatuses",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      { "value": "none", "label": "无退款", "color": "default" },
+                      { "value": "pending", "label": "待处理", "color": "orange" },
+                      { "value": "processing", "label": "处理中", "color": "blue" },
+                      { "value": "partial", "label": "部分退款", "color": "orange" },
+                      { "value": "full", "label": "全额退款", "color": "green" },
+                      { "value": "failed", "label": "退款失败", "color": "red" },
+                      { "value": "rejected", "label": "已拒绝", "color": "red" }
+                    ],
+                    "total": 7
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/order-statuses": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取订单状态选项",
+        "description": "获取所有可用的订单状态枚举选项\n\n**支持的订单状态：**\npending, confirmed, processing, completed, cancelled, expired, failed, on_hold, refunded, partially_refunded\n\n**测试用例：**\n1. 用于订单状态筛选\n2. 订单列表状态展示",
+        "operationId": "getOrderStatuses",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      { "value": "pending", "label": "待确认", "color": "default" },
+                      { "value": "confirmed", "label": "已确认", "color": "blue" },
+                      { "value": "processing", "label": "处理中", "color": "blue" },
+                      { "value": "completed", "label": "已完成", "color": "green" },
+                      { "value": "cancelled", "label": "已取消", "color": "default" },
+                      { "value": "expired", "label": "已过期", "color": "red" },
+                      { "value": "failed", "label": "失败", "color": "red" },
+                      { "value": "on_hold", "label": "暂停", "color": "orange" },
+                      { "value": "refunded", "label": "已退款", "color": "red" },
+                      { "value": "partially_refunded", "label": "部分退款", "color": "orange" }
+                    ],
+                    "total": 10
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/order-types": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取订单类型选项",
+        "description": "获取所有可用的订单类型枚举选项\n\n**支持的订单类型：**\nstandard, presale, group_buy, flash_sale, subscription, gift, exchange\n\n**测试用例：**\n1. 用于订单类型筛选\n2. 订单创建时选择类型",
+        "operationId": "getOrderTypes",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      { "value": "standard", "label": "标准订单", "color": "default" },
+                      { "value": "presale", "label": "预售订单", "color": "blue" },
+                      { "value": "group_buy", "label": "团购订单", "color": "orange" },
+                      { "value": "flash_sale", "label": "秒杀订单", "color": "red" },
+                      { "value": "subscription", "label": "订阅订单", "color": "purple" },
+                      { "value": "gift", "label": "礼品订单", "color": "pink" },
+                      { "value": "exchange", "label": "换货订单", "color": "green" }
+                    ],
+                    "total": 7
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/user-statuses": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取用户状态选项",
+        "description": "获取所有可用的用户状态枚举选项\n\n**支持的用户状态：**\nactive, inactive, suspended, banned, deleted, pending_verification\n\n**测试用例：**\n1. 用于用户状态筛选\n2. 用户列表状态展示",
+        "operationId": "getUserStatuses",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      { "value": "active", "label": "活跃", "color": "green" },
+                      { "value": "inactive", "label": "未激活", "color": "default" },
+                      { "value": "suspended", "label": "已暂停", "color": "orange" },
+                      { "value": "banned", "label": "已禁用", "color": "red" },
+                      { "value": "deleted", "label": "已删除", "color": "default" },
+                      { "value": "pending_verification", "label": "待验证", "color": "blue" }
+                    ],
+                    "total": 6
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/genders": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取性别选项",
+        "description": "获取所有可用的性别枚举选项\n\n**支持的性别：**\nmale, female, other, prefer_not_to_say\n\n**测试用例：**\n1. 用于用户资料性别选择\n2. 用户注册时性别选择",
+        "operationId": "getGenders",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      { "value": "male", "label": "男", "color": "blue" },
+                      { "value": "female", "label": "女", "color": "pink" },
+                      { "value": "other", "label": "其他", "color": "purple" },
+                      { "value": "prefer_not_to_say", "label": "不愿透露", "color": "default" }
+                    ],
+                    "total": 4
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/approval-statuses": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取审批状态选项",
+        "description": "获取所有可用的审批状态枚举选项\n\n**支持的审批状态：**\ndraft, pending, approved, rejected, cancelled, revoked\n\n**测试用例：**\n1. 用于审批流程状态筛选\n2. 审批记录状态展示",
+        "operationId": "getApprovalStatuses",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      { "value": "draft", "label": "草稿", "color": "default" },
+                      { "value": "pending", "label": "待审批", "color": "orange" },
+                      { "value": "approved", "label": "已批准", "color": "green" },
+                      { "value": "rejected", "label": "已拒绝", "color": "red" },
+                      { "value": "cancelled", "label": "已取消", "color": "default" },
+                      { "value": "revoked", "label": "已撤回", "color": "default" }
+                    ],
+                    "total": 6
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/enums/publish-statuses": {
+      "get": {
+        "tags": ["EnumOptions/Enum"],
+        "summary": "获取发布状态选项",
+        "description": "获取所有可用的发布状态枚举选项\n\n**支持的发布状态：**\ndraft, scheduled, published, unpublished, archived\n\n**测试用例：**\n1. 用于内容发布状态筛选\n2. 文章、公告等发布状态展示",
+        "operationId": "getPublishStatuses",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "Accept",
+            "in": "header",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "application/json"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "example": {
+                  "code": 200,
+                  "msg": "success",
+                  "data": {
+                    "list": [
+                      { "value": "draft", "label": "草稿", "color": "default" },
+                      { "value": "scheduled", "label": "定时发布", "color": "blue" },
+                      { "value": "published", "label": "已发布", "color": "green" },
+                      { "value": "unpublished", "label": "未发布", "color": "default" },
+                      { "value": "archived", "label": "已归档", "color": "default" }
+                    ],
+                    "total": 5
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Token"
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "未授权",
+        "content": {
+          "application/json": {
+            "example": {
+              "code": 401,
+              "msg": "未授权访问",
+              "data": null
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "资源不存在",
+        "content": {
+          "application/json": {
+            "example": {
+              "code": 404,
+              "msg": "资源不存在",
+              "data": null
+            }
+          }
+        }
+      }
+    }
+  }
+}
