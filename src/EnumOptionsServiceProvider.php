@@ -1,11 +1,11 @@
 <?php
 
-namespace YourVendor\EnumOptions;
+namespace WeiJuKeJi\EnumOptions;
 
 use Illuminate\Support\ServiceProvider;
-use YourVendor\EnumOptions\Commands\ListPresetsCommand;
-use YourVendor\EnumOptions\Commands\MakeEnumCommand;
-use YourVendor\EnumOptions\Commands\PublishEnumCommand;
+use WeiJuKeJi\EnumOptions\Commands\ListPresetsCommand;
+use WeiJuKeJi\EnumOptions\Commands\MakeEnumCommand;
+use WeiJuKeJi\EnumOptions\Commands\PublishEnumCommand;
 
 class EnumOptionsServiceProvider extends ServiceProvider
 {

@@ -1,8 +1,8 @@
 # Laravel Enum Options
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/your-vendor/laravel-enum-options.svg?style=flat-square)](https://packagist.org/packages/your-vendor/laravel-enum-options)
-[![Total Downloads](https://img.shields.io/packagist/dt/your-vendor/laravel-enum-options.svg?style=flat-square)](https://packagist.org/packages/your-vendor/laravel-enum-options)
-[![License](https://img.shields.io/packagist/l/your-vendor/laravel-enum-options.svg?style=flat-square)](https://packagist.org/packages/your-vendor/laravel-enum-options)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/weijukeji/laravel-enum-options.svg?style=flat-square)](https://packagist.org/packages/weijukeji/laravel-enum-options)
+[![Total Downloads](https://img.shields.io/packagist/dt/weijukeji/laravel-enum-options.svg?style=flat-square)](https://packagist.org/packages/weijukeji/laravel-enum-options)
+[![License](https://img.shields.io/packagist/l/weijukeji/laravel-enum-options.svg?style=flat-square)](https://packagist.org/packages/weijukeji/laravel-enum-options)
 
 A Laravel package for handling enums with frontend-friendly options (labels, colors, icons) and multi-language support.
 
@@ -26,7 +26,7 @@ A Laravel package for handling enums with frontend-friendly options (labels, col
 Install the package via Composer:
 
 ```bash
-composer require your-vendor/laravel-enum-options
+composer require weijukeji/laravel-enum-options
 ```
 
 Publish the configuration file (optional):
@@ -42,7 +42,7 @@ php artisan vendor:publish --tag=enum-options-config
 Use built-in preset enums directly:
 
 ```php
-use YourVendor\EnumOptions\Presets\Payment\PaymentMethodEnum;
+use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
 
 $method = PaymentMethodEnum::WECHAT;
 echo $method->label();  // 微信支付
@@ -90,7 +90,7 @@ This generates:
 
 namespace App\Enums;
 
-use YourVendor\EnumOptions\Traits\EnumOptions;
+use WeiJuKeJi\EnumOptions\Traits\EnumOptions;
 
 enum SubscriptionStatusEnum: string
 {
@@ -368,7 +368,7 @@ If you prefer manual control, keep `auto_register_routes` as `false` and registe
 
 ```php
 // routes/api.php
-use YourVendor\EnumOptions\Http\Controllers\EnumController;
+use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
 
 Route::prefix('enums')->middleware('auth:sanctum')->group(function () {
     Route::get('all', [EnumController::class, 'all']);
@@ -382,7 +382,7 @@ Or create your own controller:
 ```php
 namespace App\Http\Controllers;
 
-use YourVendor\EnumOptions\Presets\Payment\PaymentMethodEnum;
+use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
 
 class MyEnumController extends Controller
 {

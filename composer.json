@@ -1,5 +1,5 @@
 {
-    "name": "your-vendor/laravel-enum-options",
+    "name": "weijukeji/laravel-enum-options",
     "description": "A Laravel package for handling enums with frontend-friendly options (labels, colors, icons) and multi-language support",
     "keywords": [
         "laravel",
@@ -14,8 +14,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Your Name",
-            "email": "your.email@example.com"
+            "name": "Ruihua",
+            "email": "ruihuachen@qq.com"
         }
     ],
     "require": {
@@ -29,18 +29,18 @@
     },
     "autoload": {
         "psr-4": {
-            "YourVendor\\EnumOptions\\": "src/"
+            "WeiJuKeJi\\EnumOptions\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "YourVendor\\EnumOptions\\Tests\\": "tests/"
+            "WeiJuKeJi\\EnumOptions\\Tests\\": "tests/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "YourVendor\\EnumOptions\\EnumOptionsServiceProvider"
+                "WeiJuKeJi\\EnumOptions\\EnumOptionsServiceProvider"
             ]
         }
     },

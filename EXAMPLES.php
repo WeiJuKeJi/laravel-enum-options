@@ -8,8 +8,8 @@
 
 // ==================== 1. 使用预设枚举 ====================
 
-use YourVendor\EnumOptions\Presets\Payment\PaymentMethodEnum;
-use YourVendor\EnumOptions\Presets\Order\OrderStatusEnum;
+use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
+use WeiJuKeJi\EnumOptions\Presets\Order\OrderStatusEnum;
 
 // 获取单个枚举值
 $wechat = PaymentMethodEnum::WECHAT;
@@ -161,7 +161,7 @@ class OrderResource extends JsonResource
 
 // 方式 2: 使用内置控制器手动注册
 // routes/api.php
-use YourVendor\EnumOptions\Http\Controllers\EnumController;
+use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
 
 Route::prefix('enums')->middleware('auth:sanctum')->name('enums.')->group(function () {
     Route::get('all', [EnumController::class, 'all'])->name('all');

@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use YourVendor\EnumOptions\Http\Controllers\EnumController;
+use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
 
 /*
 |--------------------------------------------------------------------------

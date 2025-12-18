@@ -1,8 +1,8 @@
 <?php
 
-namespace YourVendor\EnumOptions\Presets\Payment;
+namespace WeiJuKeJi\EnumOptions\Presets\Payment;
 
-use YourVendor\EnumOptions\Traits\EnumOptions;
+use WeiJuKeJi\EnumOptions\Traits\EnumOptions;
 
 /**
  * 退款状态枚举

@@ -1,6 +1,6 @@
 <?php
 
-namespace YourVendor\EnumOptions\Traits;
+namespace WeiJuKeJi\EnumOptions\Traits;
 
 /**
  * EnumOptions Trait

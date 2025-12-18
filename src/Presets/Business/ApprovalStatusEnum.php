@@ -1,8 +1,8 @@
 <?php
 
-namespace YourVendor\EnumOptions\Presets\Business;
+namespace WeiJuKeJi\EnumOptions\Presets\Business;
 
-use YourVendor\EnumOptions\Traits\EnumOptions;
+use WeiJuKeJi\EnumOptions\Traits\EnumOptions;
 
 /**
  * 审批状态枚举

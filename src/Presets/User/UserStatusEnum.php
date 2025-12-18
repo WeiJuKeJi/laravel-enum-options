@@ -1,8 +1,8 @@
 <?php
 
-namespace YourVendor\EnumOptions\Presets\User;
+namespace WeiJuKeJi\EnumOptions\Presets\User;
 
-use YourVendor\EnumOptions\Traits\EnumOptions;
+use WeiJuKeJi\EnumOptions\Traits\EnumOptions;
 
 /**
  * 用户状态枚举

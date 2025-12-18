@@ -15,7 +15,7 @@
 ## 安装
 
 ```bash
-composer require your-vendor/laravel-enum-options
+composer require weijukeji/laravel-enum-options
 ```
 
 ## 三种使用方式
@@ -23,7 +23,7 @@ composer require your-vendor/laravel-enum-options
 ### 方式一: 直接使用预设枚举（最快）
 
 ```php
-use YourVendor\EnumOptions\Presets\Payment\PaymentMethodEnum;
+use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
 
 $method = PaymentMethodEnum::WECHAT;
 echo $method->label();  // 微信支付
@@ -210,7 +210,7 @@ GET /api/v1/enums/publish-statuses       # 发布状态
 
 ```php
 // routes/api.php
-use YourVendor\EnumOptions\Http\Controllers\EnumController;
+use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
 
 Route::prefix('enums')->middleware('auth:sanctum')->group(function () {
     Route::get('all', [EnumController::class, 'all']);
@@ -223,7 +223,7 @@ Route::prefix('enums')->middleware('auth:sanctum')->group(function () {
 ```php
 namespace App\Http\Controllers;
 
-use YourVendor\EnumOptions\Presets\Payment\PaymentMethodEnum;
+use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
 
 class MyEnumController extends Controller
 {
@@ -381,4 +381,4 @@ app.mount('#app')
 ## 支持
 
 - 文档: [README.md](README.md)
-- 问题: [GitHub Issues](https://github.com/your-vendor/laravel-enum-options/issues)
+- 问题: [GitHub Issues](https://github.com/weijukeji/laravel-enum-options/issues)

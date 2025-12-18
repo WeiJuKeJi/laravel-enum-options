@@ -1,6 +1,6 @@
 <?php
 
-namespace YourVendor\EnumOptions\Commands;
+namespace WeiJuKeJi\EnumOptions\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -89,7 +89,7 @@ class MakeEnumCommand extends Command
 
 namespace App\Enums;
 
-use YourVendor\EnumOptions\Traits\EnumOptions;
+use WeiJuKeJi\EnumOptions\Traits\EnumOptions;
 
 /**
  * {$className}

@@ -1,18 +1,18 @@
 <?php
 
-namespace YourVendor\EnumOptions\Http\Controllers;
+namespace WeiJuKeJi\EnumOptions\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
-use YourVendor\EnumOptions\Presets\Business\ApprovalStatusEnum;
-use YourVendor\EnumOptions\Presets\Business\PublishStatusEnum;
-use YourVendor\EnumOptions\Presets\Order\OrderStatusEnum;
-use YourVendor\EnumOptions\Presets\Order\OrderTypeEnum;
-use YourVendor\EnumOptions\Presets\Payment\PaymentMethodEnum;
-use YourVendor\EnumOptions\Presets\Payment\PaymentStatusEnum;
-use YourVendor\EnumOptions\Presets\Payment\RefundStatusEnum;
-use YourVendor\EnumOptions\Presets\User\GenderEnum;
-use YourVendor\EnumOptions\Presets\User\UserStatusEnum;
+use WeiJuKeJi\EnumOptions\Presets\Business\ApprovalStatusEnum;
+use WeiJuKeJi\EnumOptions\Presets\Business\PublishStatusEnum;
+use WeiJuKeJi\EnumOptions\Presets\Order\OrderStatusEnum;
+use WeiJuKeJi\EnumOptions\Presets\Order\OrderTypeEnum;
+use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
+use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentStatusEnum;
+use WeiJuKeJi\EnumOptions\Presets\Payment\RefundStatusEnum;
+use WeiJuKeJi\EnumOptions\Presets\User\GenderEnum;
+use WeiJuKeJi\EnumOptions\Presets\User\UserStatusEnum;
 
 /**
  * 枚举选项控制器

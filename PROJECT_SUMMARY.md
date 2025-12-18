@@ -2,7 +2,7 @@
 
 ## 项目信息
 
-- **包名**: `your-vendor/laravel-enum-options`
+- **包名**: `weijukeji/laravel-enum-options`
 - **位置**: `/Users/oran/Documents/Coding/Packagist/laravel-enum-options`
 - **PHP 版本**: 8.1+
 - **Laravel 版本**: 10.x, 11.x, 12.x
@@ -214,8 +214,8 @@ PaymentMethodEnum::options();
 ### 发布前准备
 
 1. **修改 composer.json**
-   - 将 `your-vendor` 替换为实际的 vendor 名称
-   - 将 `YourVendor` 命名空间替换为实际命名空间
+   - 将 `weijukeji` 替换为实际的 vendor 名称
+   - 将 `WeiJuKeJi` 命名空间替换为实际命名空间
    - 填写作者信息
 
 2. **初始化 Git 仓库**

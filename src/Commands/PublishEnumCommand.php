@@ -1,6 +1,6 @@
 <?php
 
-namespace YourVendor\EnumOptions\Commands;
+namespace WeiJuKeJi\EnumOptions\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
@@ -108,7 +108,7 @@ class PublishEnumCommand extends Command
 
         // 替换命名空间
         $content = str_replace(
-            'namespace YourVendor\EnumOptions\Presets',
+            'namespace WeiJuKeJi\EnumOptions\Presets',
             'namespace App\Enums',
             $content
         );
