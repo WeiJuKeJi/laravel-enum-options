@@ -69,17 +69,19 @@ enum PaymentMethodEnum: string
     public function icon(): ?string
     {
         return match ($this) {
-            self::WECHAT, self::WECHAT_POS => 'wechat',
-            self::ALIPAY => 'alipay',
-            self::BANK_TRANSFER => 'bank',
-            self::CASH => 'money',
-            self::CREDIT_CARD, self::DEBIT_CARD => 'credit-card',
-            self::UNION_PAY => 'union-pay',
-            self::PAYPAL => 'paypal',
-            self::APPLE_PAY => 'apple',
-            self::GOOGLE_PAY => 'google',
-            self::POS => 'pos',
-            self::OTHER => 'question',
+            self::WECHAT => 'wechat-pay-fill',
+            self::WECHAT_POS => 'wechat-2-fill',
+            self::ALIPAY => 'alipay-fill',
+            self::BANK_TRANSFER => 'bank-fill',
+            self::CASH => 'cash-fill',
+            self::CREDIT_CARD => 'bank-card-fill',
+            self::DEBIT_CARD => 'bank-card-2-fill',
+            self::UNION_PAY => 'secure-payment-fill',
+            self::PAYPAL => 'paypal-fill',
+            self::APPLE_PAY => 'apple-fill',
+            self::GOOGLE_PAY => 'google-fill',
+            self::POS => 'calculator-fill',
+            self::OTHER => 'more-fill',
         };
     }
 }

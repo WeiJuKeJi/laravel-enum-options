@@ -43,4 +43,15 @@ enum PublishStatusEnum: string
             self::ARCHIVED => 'gray',
         };
     }
+
+    public function icon(): ?string
+    {
+        return match ($this) {
+            self::DRAFT => 'draft-fill',
+            self::SCHEDULED => 'calendar-schedule-fill',
+            self::PUBLISHED => 'send-plane-fill',
+            self::UNPUBLISHED => 'eye-off-fill',
+            self::ARCHIVED => 'archive-fill',
+        };
+    }
 }

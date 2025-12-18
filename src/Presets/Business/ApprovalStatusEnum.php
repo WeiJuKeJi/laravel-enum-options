@@ -45,4 +45,16 @@ enum ApprovalStatusEnum: string
             self::CANCELLED, self::REVOKED => 'gray',
         };
     }
+
+    public function icon(): ?string
+    {
+        return match ($this) {
+            self::DRAFT => 'draft-fill',
+            self::PENDING => 'time-line',
+            self::APPROVED => 'checkbox-circle-fill',
+            self::REJECTED => 'close-circle-fill',
+            self::CANCELLED => 'forbid-fill',
+            self::REVOKED => 'arrow-go-back-fill',
+        };
+    }
 }

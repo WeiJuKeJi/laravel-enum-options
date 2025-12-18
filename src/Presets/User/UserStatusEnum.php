@@ -46,4 +46,16 @@ enum UserStatusEnum: string
             self::PENDING_VERIFICATION => 'blue',
         };
     }
+
+    public function icon(): ?string
+    {
+        return match ($this) {
+            self::ACTIVE => 'user-smile-fill',
+            self::INACTIVE => 'user-line',
+            self::SUSPENDED => 'pause-circle-fill',
+            self::BANNED => 'forbid-fill',
+            self::DELETED => 'delete-bin-fill',
+            self::PENDING_VERIFICATION => 'user-search-fill',
+        };
+    }
 }

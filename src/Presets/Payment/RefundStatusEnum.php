@@ -48,4 +48,17 @@ enum RefundStatusEnum: string
             self::FAILED, self::REJECTED => 'red',
         };
     }
+
+    public function icon(): ?string
+    {
+        return match ($this) {
+            self::NONE => 'checkbox-blank-circle-line',
+            self::PENDING => 'time-line',
+            self::PROCESSING => 'refund-line',
+            self::PARTIAL => 'refund-2-line',
+            self::FULL => 'refund-fill',
+            self::FAILED => 'close-circle-fill',
+            self::REJECTED => 'forbid-fill',
+        };
+    }
 }

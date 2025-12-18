@@ -40,4 +40,14 @@ enum GenderEnum: string
             self::PREFER_NOT_TO_SAY => 'gray',
         };
     }
+
+    public function icon(): ?string
+    {
+        return match ($this) {
+            self::MALE => 'men-fill',
+            self::FEMALE => 'women-fill',
+            self::OTHER => 'genderless-fill',
+            self::PREFER_NOT_TO_SAY => 'question-fill',
+        };
+    }
 }

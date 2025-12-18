@@ -56,4 +56,20 @@ enum OrderStatusEnum: string
             self::REFUNDED, self::PARTIALLY_REFUNDED => 'red',
         };
     }
+
+    public function icon(): ?string
+    {
+        return match ($this) {
+            self::PENDING => 'file-list-line',
+            self::CONFIRMED => 'checkbox-circle-line',
+            self::PROCESSING => 'loader-line',
+            self::COMPLETED => 'checkbox-circle-fill',
+            self::CANCELLED => 'close-circle-fill',
+            self::EXPIRED => 'hourglass-fill',
+            self::FAILED => 'error-warning-fill',
+            self::ON_HOLD => 'pause-circle-fill',
+            self::REFUNDED => 'refund-fill',
+            self::PARTIALLY_REFUNDED => 'refund-2-fill',
+        };
+    }
 }

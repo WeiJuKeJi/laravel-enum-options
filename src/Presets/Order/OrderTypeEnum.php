@@ -49,4 +49,17 @@ enum OrderTypeEnum: string
             self::EXCHANGE => 'cyan',
         };
     }
+
+    public function icon(): ?string
+    {
+        return match ($this) {
+            self::STANDARD => 'shopping-cart-fill',
+            self::PRESALE => 'calendar-event-fill',
+            self::GROUP_BUY => 'group-fill',
+            self::FLASH_SALE => 'flashlight-fill',
+            self::SUBSCRIPTION => 'loop-left-fill',
+            self::GIFT => 'gift-fill',
+            self::EXCHANGE => 'exchange-fill',
+        };
+    }
 }

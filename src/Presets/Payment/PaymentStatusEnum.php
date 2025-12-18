@@ -55,4 +55,20 @@ enum PaymentStatusEnum: string
             self::REFUNDED, self::PARTIALLY_REFUNDED => 'red',
         };
     }
+
+    public function icon(): ?string
+    {
+        return match ($this) {
+            self::UNPAID => 'wallet-line',
+            self::PENDING => 'time-line',
+            self::PAYING => 'loader-line',
+            self::PAID => 'checkbox-circle-fill',
+            self::FAILED => 'close-circle-fill',
+            self::CANCELLED => 'forbid-fill',
+            self::REFUNDING => 'refund-line',
+            self::REFUNDED => 'refund-fill',
+            self::PARTIALLY_REFUNDED => 'refund-2-fill',
+            self::TIMEOUT => 'hourglass-fill',
+        };
+    }
 }
