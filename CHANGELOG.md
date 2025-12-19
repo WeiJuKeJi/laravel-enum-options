@@ -12,6 +12,11 @@ All notable changes to `laravel-enum-options` will be documented in this file.
   - Auto-discover app enums from `app/Enums` directory
   - Support for multi-level category directories
   - Zero maintenance required - enums automatically registered on file creation
+- **Dynamic Route Registration**: Fully automatic API route generation
+  - Routes automatically created for all discovered enums
+  - Uses `EnumController::show()` with dynamic enum key parameter
+  - Supports unlimited enums without code changes
+  - Consistent kebab-case URL naming (e.g., `payment_methods` → `payment-methods`)
 - **New API Endpoint**: `GET /enums/list` for retrieving metadata of all available enums
   - Returns enum keys, names, descriptions, routes, counts, and categories
   - Supports dynamic enum registration
@@ -28,6 +33,16 @@ All notable changes to `laravel-enum-options` will be documented in this file.
   - Bilingual documentation (Chinese)
 
 ### Changed
+- **EnumController**: Completely refactored for dynamic operation
+  - Removed 9 hardcoded controller methods (e.g., `paymentMethods()`, `orderStatuses()`)
+  - Removed 9 hardcoded enum class imports
+  - Added dynamic `show(string $key)` method for all enums
+  - Made `all()` method dynamic - automatically includes new enums
+  - Reduced code from 173 lines to 124 lines (-28%)
+- **ServiceProvider**: Routes now registered programmatically
+  - Removed dependency on static `routes/api.php` file
+  - Routes generated dynamically from EnumRegistry
+  - Automatic route creation for any new enum
 - **API Response Format**: Standardized to `{ "list": [...], "total": n }` structure
   - Applies to all enum option endpoints
   - More consistent and frontend-friendly
@@ -46,6 +61,7 @@ All notable changes to `laravel-enum-options` will be documented in this file.
 
 ### Documentation
 - Added comprehensive documentation for automatic enum discovery system
+- Added dynamic route registration documentation with 3 manual options
 - Added `toArraySafe()` usage examples with fallback configuration
 - Added `GET /enums/list` endpoint documentation
 - Fixed API response format examples across all endpoints

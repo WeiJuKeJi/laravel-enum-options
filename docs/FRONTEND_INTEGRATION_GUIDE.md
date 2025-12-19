@@ -9,8 +9,9 @@
 3. [Vue 3 完整示例](#vue-3-完整示例)
 4. [React 完整示例](#react-完整示例)
 5. [TypeScript 类型定义](#typescript-类型定义)
-6. [常见使用场景](#常见使用场景)
-7. [性能优化建议](#性能优化建议)
+6. [左树右表模式（管理后台）](#左树右表模式管理后台)
+7. [常见使用场景](#常见使用场景)
+8. [性能优化建议](#性能优化建议)
 
 ---
 
@@ -749,6 +750,832 @@ export interface EnumApiResponse {
   publish_statuses: EnumOption[]
 }
 ```
+
+---
+
+## 左树右表模式（管理后台）
+
+### 场景说明
+
+在管理后台中，常需要展示所有枚举配置的管理页面：
+- **左侧树状导航**: 按分类展示所有枚举类型（Payment、Order、User等）
+- **右侧详情表格**: 显示选中枚举的所有选项及其详细信息
+
+### Vue 3 + Element Plus 实现
+
+#### 1. 完整组件代码
+
+```vue
+<template>
+  <div class="enum-manager">
+    <el-container>
+      <!-- 左侧：枚举分类树 -->
+      <el-aside width="300px" class="enum-tree">
+        <el-input
+          v-model="searchText"
+          placeholder="搜索枚举"
+          :prefix-icon="Search"
+          clearable
+          style="margin-bottom: 10px"
+        />
+
+        <el-tree
+          :data="enumTree"
+          :props="treeProps"
+          :filter-node-method="filterNode"
+          @node-click="handleNodeClick"
+          node-key="key"
+          highlight-current
+          default-expand-all
+          ref="treeRef"
+        >
+          <template #default="{ node, data }">
+            <span class="custom-tree-node">
+              <el-icon v-if="data.icon"><component :is="data.icon" /></el-icon>
+              <span>{{ data.label }}</span>
+              <el-badge
+                v-if="data.count"
+                :value="data.count"
+                class="enum-count-badge"
+                type="info"
+              />
+            </span>
+          </template>
+        </el-tree>
+      </el-aside>
+
+      <!-- 右侧：枚举详情表格 -->
+      <el-main class="enum-detail">
+        <el-card v-if="selectedEnum">
+          <template #header>
+            <div class="card-header">
+              <span class="enum-title">{{ selectedEnumInfo?.name }}</span>
+              <el-tag>{{ selectedEnumInfo?.category }}</el-tag>
+            </div>
+            <div class="enum-description">
+              {{ selectedEnumInfo?.description }}
+            </div>
+          </template>
+
+          <el-table :data="enumOptions" border stripe>
+            <el-table-column type="index" label="#" width="60" />
+
+            <el-table-column prop="value" label="枚举值" width="200">
+              <template #default="{ row }">
+                <el-tag type="info" size="small">{{ row.value }}</el-tag>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="label" label="显示标签" width="150" />
+
+            <el-table-column prop="color" label="颜色" width="120">
+              <template #default="{ row }">
+                <el-tag :type="row.color" size="small">
+                  {{ row.color }}
+                </el-tag>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="icon" label="图标" width="120">
+              <template #default="{ row }">
+                <span v-if="row.icon">
+                  <i :class="`icon-${row.icon}`" />
+                  {{ row.icon }}
+                </span>
+                <span v-else class="text-gray">无</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="预览" width="180">
+              <template #default="{ row }">
+                <el-tag :type="row.color">
+                  <i v-if="row.icon" :class="`icon-${row.icon}`" />
+                  {{ row.label }}
+                </el-tag>
+              </template>
+            </el-table-column>
+
+            <el-table-column label="操作" width="150" fixed="right">
+              <template #default="{ row }">
+                <el-button
+                  type="primary"
+                  size="small"
+                  @click="copyValue(row.value)"
+                  link
+                >
+                  复制值
+                </el-button>
+                <el-button
+                  type="primary"
+                  size="small"
+                  @click="copyJson(row)"
+                  link
+                >
+                  复制JSON
+                </el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+
+          <!-- 统计信息 -->
+          <div class="enum-stats">
+            <el-descriptions :column="4" border size="small">
+              <el-descriptions-item label="选项总数">
+                {{ enumOptions.length }}
+              </el-descriptions-item>
+              <el-descriptions-item label="有图标">
+                {{ enumOptions.filter(o => o.icon).length }}
+              </el-descriptions-item>
+              <el-descriptions-item label="API 路由">
+                <el-tag type="success" size="small">
+                  {{ selectedEnumInfo?.route }}
+                </el-tag>
+              </el-descriptions-item>
+              <el-descriptions-item label="枚举Key">
+                <el-tag type="warning" size="small">
+                  {{ selectedEnum }}
+                </el-tag>
+              </el-descriptions-item>
+            </el-descriptions>
+          </div>
+
+          <!-- API 调用示例 -->
+          <el-collapse style="margin-top: 20px">
+            <el-collapse-item title="API 调用示例" name="1">
+              <el-tabs>
+                <el-tab-pane label="cURL">
+                  <el-input
+                    type="textarea"
+                    :value="curlExample"
+                    :rows="3"
+                    readonly
+                  />
+                  <el-button
+                    size="small"
+                    style="margin-top: 10px"
+                    @click="copyText(curlExample)"
+                  >
+                    复制
+                  </el-button>
+                </el-tab-pane>
+
+                <el-tab-pane label="JavaScript">
+                  <el-input
+                    type="textarea"
+                    :value="jsExample"
+                    :rows="5"
+                    readonly
+                  />
+                  <el-button
+                    size="small"
+                    style="margin-top: 10px"
+                    @click="copyText(jsExample)"
+                  >
+                    复制
+                  </el-button>
+                </el-tab-pane>
+              </el-tabs>
+            </el-collapse-item>
+          </el-collapse>
+        </el-card>
+
+        <!-- 未选择状态 -->
+        <el-empty
+          v-else
+          description="请从左侧选择一个枚举类型查看详情"
+          :image-size="200"
+        />
+      </el-main>
+    </el-container>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
+import { Search, Folder, Document } from '@element-plus/icons-vue'
+import axios from 'axios'
+
+interface EnumOption {
+  value: string
+  label: string
+  color: string
+  icon?: string
+}
+
+interface EnumMetadata {
+  key: string
+  name: string
+  description: string
+  route: string
+  count: number
+  category: string
+}
+
+interface TreeNode {
+  key: string
+  label: string
+  icon?: any
+  count?: number
+  children?: TreeNode[]
+}
+
+// 状态
+const searchText = ref('')
+const selectedEnum = ref<string>('')
+const enumMetadata = ref<EnumMetadata[]>([])
+const allEnums = ref<Record<string, EnumOption[]>>({})
+const treeRef = ref()
+
+// 树配置
+const treeProps = {
+  children: 'children',
+  label: 'label'
+}
+
+// 构建树状数据
+const enumTree = computed<TreeNode[]>(() => {
+  const categories: Record<string, TreeNode> = {}
+
+  enumMetadata.value.forEach(item => {
+    const category = item.category || 'other'
+
+    if (!categories[category]) {
+      categories[category] = {
+        key: `category_${category}`,
+        label: getCategoryLabel(category),
+        icon: Folder,
+        children: []
+      }
+    }
+
+    categories[category].children!.push({
+      key: item.key,
+      label: item.name,
+      icon: Document,
+      count: item.count
+    })
+  })
+
+  return Object.values(categories)
+})
+
+// 分类标签映射
+const getCategoryLabel = (category: string): string => {
+  const labels: Record<string, string> = {
+    payment: '💳 支付相关',
+    order: '📦 订单相关',
+    user: '👤 用户相关',
+    business: '💼 业务相关',
+    system: '⚙️ 系统配置',
+    custom: '🔧 自定义枚举',
+    other: '📋 其他'
+  }
+  return labels[category] || category
+}
+
+// 过滤树节点
+const filterNode = (value: string, data: TreeNode) => {
+  if (!value) return true
+  return data.label.toLowerCase().includes(value.toLowerCase())
+}
+
+// 监听搜索
+watch(searchText, (val) => {
+  treeRef.value?.filter(val)
+})
+
+// 选中枚举信息
+const selectedEnumInfo = computed(() => {
+  return enumMetadata.value.find(item => item.key === selectedEnum.value)
+})
+
+// 当前枚举选项
+const enumOptions = computed(() => {
+  return allEnums.value[selectedEnum.value] || []
+})
+
+// API 示例
+const curlExample = computed(() => {
+  if (!selectedEnumInfo.value) return ''
+  return `curl -X GET "${window.location.origin}${selectedEnumInfo.value.route}" \\
+  -H "Authorization: Bearer YOUR_TOKEN" \\
+  -H "Accept: application/json"`
+})
+
+const jsExample = computed(() => {
+  if (!selectedEnum.value) return ''
+  return `// 使用 axios 获取枚举选项
+const { data } = await axios.get('/api/enums/${selectedEnum.value.replace(/_/g, '-')}')
+
+// 使用枚举数据
+const options = data.data.list
+console.log(options)`
+})
+
+// 处理节点点击
+const handleNodeClick = (data: TreeNode) => {
+  // 只处理叶子节点（枚举项）
+  if (!data.children) {
+    selectedEnum.value = data.key
+    loadEnumOptions(data.key)
+  }
+}
+
+// 加载枚举元数据
+const loadEnumMetadata = async () => {
+  try {
+    const { data } = await axios.get('/api/enums/list')
+    if (data.code === 200) {
+      enumMetadata.value = data.data.list
+    }
+  } catch (error) {
+    ElMessage.error('加载枚举列表失败')
+    console.error(error)
+  }
+}
+
+// 加载单个枚举选项
+const loadEnumOptions = async (enumKey: string) => {
+  // 如果已缓存，直接使用
+  if (allEnums.value[enumKey]) {
+    return
+  }
+
+  try {
+    const route = enumKey.replace(/_/g, '-')
+    const { data } = await axios.get(`/api/enums/${route}`)
+
+    if (data.code === 200) {
+      allEnums.value[enumKey] = data.data.list
+    }
+  } catch (error) {
+    ElMessage.error(`加载枚举 ${enumKey} 失败`)
+    console.error(error)
+  }
+}
+
+// 复制值
+const copyValue = (value: string) => {
+  copyText(value)
+  ElMessage.success('已复制枚举值')
+}
+
+// 复制 JSON
+const copyJson = (row: EnumOption) => {
+  copyText(JSON.stringify(row, null, 2))
+  ElMessage.success('已复制 JSON 数据')
+}
+
+// 复制文本到剪贴板
+const copyText = (text: string) => {
+  navigator.clipboard.writeText(text)
+}
+
+// 初始化
+onMounted(() => {
+  loadEnumMetadata()
+})
+</script>
+
+<style scoped>
+.enum-manager {
+  height: calc(100vh - 100px);
+  padding: 20px;
+}
+
+.el-container {
+  height: 100%;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+}
+
+.enum-tree {
+  padding: 20px;
+  background-color: #f5f7fa;
+  border-right: 1px solid #dcdfe6;
+  overflow-y: auto;
+}
+
+.custom-tree-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.enum-count-badge {
+  margin-left: auto;
+}
+
+.enum-detail {
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.enum-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.enum-description {
+  margin-top: 10px;
+  color: #606266;
+  font-size: 14px;
+}
+
+.enum-stats {
+  margin-top: 20px;
+}
+
+.text-gray {
+  color: #909399;
+}
+</style>
+```
+
+#### 2. 功能特点
+
+**左侧树状导航**:
+- ✅ 按分类自动分组（Payment、Order、User等）
+- ✅ 显示每个枚举的选项数量徽章
+- ✅ 搜索过滤功能
+- ✅ 分类图标和层级展示
+
+**右侧详情表格**:
+- ✅ 完整展示枚举值、标签、颜色、图标
+- ✅ 实时预览效果
+- ✅ 统计信息（总数、有图标数量等）
+- ✅ 复制功能（复制值、复制JSON）
+- ✅ API 调用示例（cURL、JavaScript）
+
+**性能优化**:
+- ✅ 懒加载：只在点击时加载枚举选项
+- ✅ 缓存：已加载的枚举数据缓存在内存
+- ✅ 树节点过滤：支持实时搜索
+
+#### 3. React + Ant Design 实现
+
+```tsx
+import React, { useState, useEffect, useMemo } from 'react'
+import {
+  Layout,
+  Tree,
+  Table,
+  Card,
+  Input,
+  Tag,
+  Button,
+  Empty,
+  Descriptions,
+  Tabs,
+  message
+} from 'antd'
+import {
+  FolderOutlined,
+  FileOutlined,
+  SearchOutlined,
+  CopyOutlined
+} from '@ant-design/icons'
+import type { DataNode } from 'antd/es/tree'
+import axios from 'axios'
+
+const { Sider, Content } = Layout
+const { Search } = Input
+const { TabPane } = Tabs
+
+interface EnumOption {
+  value: string
+  label: string
+  color: string
+  icon?: string
+}
+
+interface EnumMetadata {
+  key: string
+  name: string
+  description: string
+  route: string
+  count: number
+  category: string
+}
+
+const EnumManager: React.FC = () => {
+  const [searchText, setSearchText] = useState('')
+  const [selectedEnum, setSelectedEnum] = useState<string>('')
+  const [enumMetadata, setEnumMetadata] = useState<EnumMetadata[]>([])
+  const [allEnums, setAllEnums] = useState<Record<string, EnumOption[]>>({})
+
+  // 构建树数据
+  const treeData = useMemo<DataNode[]>(() => {
+    const categories: Record<string, DataNode> = {}
+
+    enumMetadata.forEach(item => {
+      const category = item.category || 'other'
+
+      if (!categories[category]) {
+        categories[category] = {
+          key: `category_${category}`,
+          title: getCategoryLabel(category),
+          icon: <FolderOutlined />,
+          children: []
+        }
+      }
+
+      categories[category].children!.push({
+        key: item.key,
+        title: `${item.name} (${item.count})`,
+        icon: <FileOutlined />,
+        isLeaf: true
+      })
+    })
+
+    return Object.values(categories)
+  }, [enumMetadata])
+
+  // 过滤树数据
+  const filteredTreeData = useMemo(() => {
+    if (!searchText) return treeData
+
+    const filterNodes = (nodes: DataNode[]): DataNode[] => {
+      return nodes
+        .map(node => {
+          const title = node.title as string
+          if (title.toLowerCase().includes(searchText.toLowerCase())) {
+            return node
+          }
+          if (node.children) {
+            const children = filterNodes(node.children)
+            if (children.length > 0) {
+              return { ...node, children }
+            }
+          }
+          return null
+        })
+        .filter(Boolean) as DataNode[]
+    }
+
+    return filterNodes(treeData)
+  }, [treeData, searchText])
+
+  // 当前选中枚举的信息
+  const selectedEnumInfo = enumMetadata.find(item => item.key === selectedEnum)
+  const enumOptions = allEnums[selectedEnum] || []
+
+  // 加载枚举元数据
+  useEffect(() => {
+    loadEnumMetadata()
+  }, [])
+
+  const loadEnumMetadata = async () => {
+    try {
+      const { data } = await axios.get('/api/enums/list')
+      if (data.code === 200) {
+        setEnumMetadata(data.data.list)
+      }
+    } catch (error) {
+      message.error('加载枚举列表失败')
+    }
+  }
+
+  // 加载单个枚举选项
+  const loadEnumOptions = async (enumKey: string) => {
+    if (allEnums[enumKey]) return
+
+    try {
+      const route = enumKey.replace(/_/g, '-')
+      const { data } = await axios.get(`/api/enums/${route}`)
+
+      if (data.code === 200) {
+        setAllEnums(prev => ({ ...prev, [enumKey]: data.data.list }))
+      }
+    } catch (error) {
+      message.error(`加载枚举 ${enumKey} 失败`)
+    }
+  }
+
+  // 处理树节点选择
+  const handleSelect = (keys: React.Key[]) => {
+    const key = keys[0] as string
+    if (key && !key.startsWith('category_')) {
+      setSelectedEnum(key)
+      loadEnumOptions(key)
+    }
+  }
+
+  // 表格列定义
+  const columns = [
+    {
+      title: '#',
+      dataIndex: 'index',
+      key: 'index',
+      width: 60,
+      render: (_: any, __: any, index: number) => index + 1
+    },
+    {
+      title: '枚举值',
+      dataIndex: 'value',
+      key: 'value',
+      width: 200,
+      render: (value: string) => <Tag color="blue">{value}</Tag>
+    },
+    {
+      title: '显示标签',
+      dataIndex: 'label',
+      key: 'label',
+      width: 150
+    },
+    {
+      title: '颜色',
+      dataIndex: 'color',
+      key: 'color',
+      width: 120,
+      render: (color: string) => <Tag color={color}>{color}</Tag>
+    },
+    {
+      title: '图标',
+      dataIndex: 'icon',
+      key: 'icon',
+      width: 120,
+      render: (icon?: string) => icon || <span style={{ color: '#999' }}>无</span>
+    },
+    {
+      title: '预览',
+      key: 'preview',
+      width: 180,
+      render: (record: EnumOption) => (
+        <Tag color={record.color}>
+          {record.icon && <i className={`icon-${record.icon}`} />}
+          {record.label}
+        </Tag>
+      )
+    },
+    {
+      title: '操作',
+      key: 'action',
+      width: 150,
+      fixed: 'right' as const,
+      render: (record: EnumOption) => (
+        <>
+          <Button
+            type="link"
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={() => copyValue(record.value)}
+          >
+            复制值
+          </Button>
+          <Button
+            type="link"
+            size="small"
+            icon={<CopyOutlined />}
+            onClick={() => copyJson(record)}
+          >
+            复制JSON
+          </Button>
+        </>
+      )
+    }
+  ]
+
+  // 辅助函数
+  const getCategoryLabel = (category: string): string => {
+    const labels: Record<string, string> = {
+      payment: '💳 支付相关',
+      order: '📦 订单相关',
+      user: '👤 用户相关',
+      business: '💼 业务相关',
+      system: '⚙️ 系统配置',
+      custom: '🔧 自定义枚举',
+      other: '📋 其他'
+    }
+    return labels[category] || category
+  }
+
+  const copyValue = (value: string) => {
+    navigator.clipboard.writeText(value)
+    message.success('已复制枚举值')
+  }
+
+  const copyJson = (row: EnumOption) => {
+    navigator.clipboard.writeText(JSON.stringify(row, null, 2))
+    message.success('已复制 JSON 数据')
+  }
+
+  return (
+    <Layout style={{ height: 'calc(100vh - 100px)', padding: 20 }}>
+      {/* 左侧树 */}
+      <Sider width={300} theme="light" style={{ borderRight: '1px solid #f0f0f0' }}>
+        <div style={{ padding: 20 }}>
+          <Search
+            placeholder="搜索枚举"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ marginBottom: 10 }}
+            prefix={<SearchOutlined />}
+          />
+          <Tree
+            showIcon
+            defaultExpandAll
+            treeData={filteredTreeData}
+            onSelect={handleSelect}
+          />
+        </div>
+      </Sider>
+
+      {/* 右侧内容 */}
+      <Content style={{ padding: 20, overflowY: 'auto' }}>
+        {selectedEnumInfo ? (
+          <Card
+            title={
+              <div>
+                <span style={{ fontSize: 18, fontWeight: 'bold', marginRight: 10 }}>
+                  {selectedEnumInfo.name}
+                </span>
+                <Tag>{selectedEnumInfo.category}</Tag>
+                <div style={{ marginTop: 10, color: '#666', fontWeight: 'normal' }}>
+                  {selectedEnumInfo.description}
+                </div>
+              </div>
+            }
+          >
+            <Table
+              dataSource={enumOptions}
+              columns={columns}
+              rowKey="value"
+              bordered
+              pagination={false}
+            />
+
+            <Descriptions
+              bordered
+              size="small"
+              column={4}
+              style={{ marginTop: 20 }}
+            >
+              <Descriptions.Item label="选项总数">
+                {enumOptions.length}
+              </Descriptions.Item>
+              <Descriptions.Item label="有图标">
+                {enumOptions.filter(o => o.icon).length}
+              </Descriptions.Item>
+              <Descriptions.Item label="API 路由">
+                <Tag color="success">{selectedEnumInfo.route}</Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="枚举Key">
+                <Tag color="warning">{selectedEnum}</Tag>
+              </Descriptions.Item>
+            </Descriptions>
+
+            <Card title="API 调用示例" style={{ marginTop: 20 }}>
+              <Tabs>
+                <TabPane tab="cURL" key="curl">
+                  <pre>{`curl -X GET "${window.location.origin}${selectedEnumInfo.route}" \\
+  -H "Authorization: Bearer YOUR_TOKEN" \\
+  -H "Accept: application/json"`}</pre>
+                </TabPane>
+                <TabPane tab="JavaScript" key="js">
+                  <pre>{`// 使用 axios 获取枚举选项
+const { data } = await axios.get('/api/enums/${selectedEnum.replace(/_/g, '-')}')
+
+// 使用枚举数据
+const options = data.data.list
+console.log(options)`}</pre>
+                </TabPane>
+              </Tabs>
+            </Card>
+          </Card>
+        ) : (
+          <Empty description="请从左侧选择一个枚举类型查看详情" />
+        )}
+      </Content>
+    </Layout>
+  )
+}
+
+export default EnumManager
+```
+
+### 使用场景
+
+1. **开发调试**: 开发时查看所有可用枚举及其详细信息
+2. **API 文档**: 为前端团队提供交互式枚举文档
+3. **管理后台**: 在管理后台展示系统配置的枚举选项
+4. **团队协作**: 帮助团队了解系统中所有枚举的定义
+
+### 扩展功能建议
+
+1. **在线测试**: 直接在页面上测试 API 调用
+2. **导出功能**: 导出枚举数据为 JSON/CSV/Excel
+3. **变更历史**: 记录枚举配置的修改历史
+4. **权限控制**: 根据用户角色显示不同的枚举
+5. **批量操作**: 批量复制多个枚举的数据
 
 ---
 

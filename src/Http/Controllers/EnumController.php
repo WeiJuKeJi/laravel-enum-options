@@ -4,20 +4,12 @@ namespace WeiJuKeJi\EnumOptions\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
-use WeiJuKeJi\EnumOptions\Presets\Business\ApprovalStatusEnum;
-use WeiJuKeJi\EnumOptions\Presets\Business\PublishStatusEnum;
-use WeiJuKeJi\EnumOptions\Presets\Order\OrderStatusEnum;
-use WeiJuKeJi\EnumOptions\Presets\Order\OrderTypeEnum;
-use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
-use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentStatusEnum;
-use WeiJuKeJi\EnumOptions\Presets\Payment\RefundStatusEnum;
-use WeiJuKeJi\EnumOptions\Presets\User\GenderEnum;
-use WeiJuKeJi\EnumOptions\Presets\User\UserStatusEnum;
 use WeiJuKeJi\EnumOptions\Support\EnumRegistry;
 
 /**
  * 枚举选项控制器
  * 为前端提供各种枚举类型的下拉选项
+ * 完全动态化，自动支持所有已注册的枚举
  */
 class EnumController extends Controller
 {
@@ -32,102 +24,44 @@ class EnumController extends Controller
     }
 
     /**
-     * 获取支付方式选项
+     * 动态获取指定枚举的选项
+     *
+     * @param string $key 枚举的 key（例如：payment_methods）
+     * @return JsonResponse
      */
-    public function paymentMethods(): JsonResponse
+    public function show(string $key): JsonResponse
     {
-        $options = PaymentMethodEnum::options();
-        return $this->respondWithList($options);
-    }
+        // 从注册表获取枚举类
+        $enumClass = EnumRegistry::getEnumClass($key);
 
-    /**
-     * 获取支付状态选项
-     */
-    public function paymentStatuses(): JsonResponse
-    {
-        $options = PaymentStatusEnum::options();
-        return $this->respondWithList($options);
-    }
+        if (!$enumClass || !enum_exists($enumClass)) {
+            return $this->respondNotFound("Enum '{$key}' not found");
+        }
 
-    /**
-     * 获取退款状态选项
-     */
-    public function refundStatuses(): JsonResponse
-    {
-        $options = RefundStatusEnum::options();
-        return $this->respondWithList($options);
-    }
+        // 调用枚举类的 options() 方法获取选项
+        $options = $enumClass::options();
 
-    /**
-     * 获取订单状态选项
-     */
-    public function orderStatuses(): JsonResponse
-    {
-        $options = OrderStatusEnum::options();
-        return $this->respondWithList($options);
-    }
-
-    /**
-     * 获取订单类型选项
-     */
-    public function orderTypes(): JsonResponse
-    {
-        $options = OrderTypeEnum::options();
-        return $this->respondWithList($options);
-    }
-
-    /**
-     * 获取用户状态选项
-     */
-    public function userStatuses(): JsonResponse
-    {
-        $options = UserStatusEnum::options();
-        return $this->respondWithList($options);
-    }
-
-    /**
-     * 获取性别选项
-     */
-    public function genders(): JsonResponse
-    {
-        $options = GenderEnum::options();
-        return $this->respondWithList($options);
-    }
-
-    /**
-     * 获取审批状态选项
-     */
-    public function approvalStatuses(): JsonResponse
-    {
-        $options = ApprovalStatusEnum::options();
-        return $this->respondWithList($options);
-    }
-
-    /**
-     * 获取发布状态选项
-     */
-    public function publishStatuses(): JsonResponse
-    {
-        $options = PublishStatusEnum::options();
         return $this->respondWithList($options);
     }
 
     /**
      * 获取所有枚举选项（一次性返回）
+     * 动态遍历所有已注册的枚举
      */
     public function all(): JsonResponse
     {
-        return $this->respond([
-            'payment_methods' => PaymentMethodEnum::options(),
-            'payment_statuses' => PaymentStatusEnum::options(),
-            'refund_statuses' => RefundStatusEnum::options(),
-            'order_statuses' => OrderStatusEnum::options(),
-            'order_types' => OrderTypeEnum::options(),
-            'user_statuses' => UserStatusEnum::options(),
-            'genders' => GenderEnum::options(),
-            'approval_statuses' => ApprovalStatusEnum::options(),
-            'publish_statuses' => PublishStatusEnum::options(),
-        ]);
+        $result = [];
+
+        // 动态遍历所有已注册的枚举
+        foreach (EnumRegistry::all() as $key => $config) {
+            $enumClass = $config['class'] ?? null;
+
+            if ($enumClass && enum_exists($enumClass)) {
+                $result[$key] = $enumClass::options();
+            }
+        }
+
+        return $this->respond($result);
     }
 
     /**
@@ -168,5 +102,22 @@ class EnumController extends Controller
                 'total' => count($list),
             ],
         ]);
+    }
+
+    /**
+     * 404 响应
+     */
+    protected function respondNotFound(string $message): JsonResponse
+    {
+        $format = config('enum-options.response_format', [
+            'code_key' => 'code',
+            'message_key' => 'msg',
+            'data_key' => 'data',
+        ]);
+
+        return response()->json([
+            $format['code_key'] => 404,
+            $format['message_key'] => $message,
+        ], 404);
     }
 }

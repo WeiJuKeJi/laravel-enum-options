@@ -415,11 +415,15 @@ Enable auto routes in `config/enum-options.php`:
 
 ### Available Endpoints
 
+**Routes are automatically generated for all registered enums!** No manual maintenance required.
+
 Once enabled, the following endpoints will be available:
 
 ```bash
 GET /api/enums/list                   # Get metadata of all available enums
 GET /api/enums/all                    # Get all enum options (recommended)
+
+# Dynamically generated routes for all preset enums:
 GET /api/enums/payment-methods        # Payment methods
 GET /api/enums/payment-statuses       # Payment statuses
 GET /api/enums/refund-statuses        # Refund statuses
@@ -429,7 +433,17 @@ GET /api/enums/user-statuses          # User statuses
 GET /api/enums/genders                # Genders
 GET /api/enums/approval-statuses      # Approval statuses
 GET /api/enums/publish-statuses       # Publish statuses
+
+# Your custom enums are also automatically registered:
+GET /api/enums/shipping-statuses      # If you have ShippingStatusEnum
+GET /api/enums/{your-custom-enum}     # Any enum you create!
 ```
+
+**Key Features:**
+- ✅ **Zero Configuration**: Add a new enum, route is automatically created
+- ✅ **Dynamic Discovery**: Uses EnumRegistry to find all enums
+- ✅ **Consistent URLs**: Enum keys are converted to kebab-case (e.g., `payment_methods` → `payment-methods`)
+- ✅ **Fully Scalable**: Supports unlimited enums without code changes
 
 ### Response Format
 
@@ -513,7 +527,34 @@ The response format can be customized in config:
 
 ### Manual Route Registration
 
-If you prefer manual control, keep `auto_register_routes` as `false` and register routes yourself:
+If you prefer manual control, keep `auto_register_routes` as `false` and register routes yourself.
+
+**Option 1: Dynamic Registration (Recommended)**
+
+Register routes dynamically using EnumRegistry:
+
+```php
+// routes/api.php
+use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
+use WeiJuKeJi\EnumOptions\Support\EnumRegistry;
+use Illuminate\Support\Str;
+
+Route::prefix('enums')->middleware('auth:sanctum')->group(function () {
+    // Fixed routes
+    Route::get('list', [EnumController::class, 'list']);
+    Route::get('all', [EnumController::class, 'all']);
+
+    // Dynamically register all enums
+    foreach (EnumRegistry::all() as $key => $config) {
+        Route::get(Str::kebab($key), [EnumController::class, 'show'])
+            ->defaults('key', $key);
+    }
+});
+```
+
+**Option 2: Specific Routes**
+
+Register specific enum routes manually:
 
 ```php
 // routes/api.php
@@ -521,25 +562,37 @@ use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
 
 Route::prefix('enums')->middleware('auth:sanctum')->group(function () {
     Route::get('all', [EnumController::class, 'all']);
-    Route::get('payment-methods', [EnumController::class, 'paymentMethods']);
-    // ... other routes
+
+    // Specific enums using the dynamic show() method
+    Route::get('payment-methods', [EnumController::class, 'show'])
+        ->defaults('key', 'payment_methods');
+    Route::get('order-statuses', [EnumController::class, 'show'])
+        ->defaults('key', 'order_statuses');
 });
 ```
 
-Or create your own controller:
+**Option 3: Custom Controller**
+
+Create your own controller for custom response format:
 
 ```php
 namespace App\Http\Controllers;
 
-use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
+use WeiJuKeJi\EnumOptions\Support\EnumRegistry;
 
 class MyEnumController extends Controller
 {
-    public function paymentMethods()
+    public function show(string $key)
     {
+        $enumClass = EnumRegistry::getEnumClass($key);
+
+        if (!$enumClass) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+
         return response()->json([
-            'code' => 200,
-            'data' => PaymentMethodEnum::options(),
+            'success' => true,
+            'data' => $enumClass::options(),
         ]);
     }
 }

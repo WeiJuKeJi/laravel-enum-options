@@ -56,6 +56,7 @@ class EnumOptionsServiceProvider extends ServiceProvider
 
     /**
      * 注册路由
+     * 动态为所有已注册的枚举创建路由
      */
     protected function registerRoutes(): void
     {
@@ -67,6 +68,26 @@ class EnumOptionsServiceProvider extends ServiceProvider
             ->prefix($prefix)
             ->middleware($middleware)
             ->name("{$namePrefix}.")
-            ->group(__DIR__.'/../routes/api.php');
+            ->group(function ($router) {
+                // 枚举列表端点（元数据）
+                $router->get('list', [\WeiJuKeJi\EnumOptions\Http\Controllers\EnumController::class, 'list'])
+                    ->name('list');
+
+                // 所有枚举一次性获取
+                $router->get('all', [\WeiJuKeJi\EnumOptions\Http\Controllers\EnumController::class, 'all'])
+                    ->name('all');
+
+                // 动态注册每个枚举的单独路由
+                $enums = \WeiJuKeJi\EnumOptions\Support\EnumRegistry::all();
+
+                foreach ($enums as $key => $config) {
+                    // 将 snake_case key 转换为 kebab-case URL
+                    $route = \Illuminate\Support\Str::kebab($key);
+
+                    $router->get($route, [\WeiJuKeJi\EnumOptions\Http\Controllers\EnumController::class, 'show'])
+                        ->defaults('key', $key)
+                        ->name($key);
+                }
+            });
     }
 }

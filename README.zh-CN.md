@@ -415,11 +415,15 @@ php artisan vendor:publish --tag=enum-options-config
 
 ### 可用端点
 
+**路由会为所有已注册的枚举自动生成！** 无需手动维护。
+
 启用后，将自动注册以下端点:
 
 ```bash
 GET /api/enums/list                   # 获取所有可用枚举的元数据
 GET /api/enums/all                    # 获取所有枚举选项（推荐）
+
+# 为所有预设枚举动态生成的路由:
 GET /api/enums/payment-methods        # 支付方式
 GET /api/enums/payment-statuses       # 支付状态
 GET /api/enums/refund-statuses        # 退款状态
@@ -429,7 +433,17 @@ GET /api/enums/user-statuses          # 用户状态
 GET /api/enums/genders                # 性别
 GET /api/enums/approval-statuses      # 审批状态
 GET /api/enums/publish-statuses       # 发布状态
+
+# 你的自定义枚举也会自动注册:
+GET /api/enums/shipping-statuses      # 如果你有 ShippingStatusEnum
+GET /api/enums/{你的自定义枚举}        # 你创建的任何枚举！
 ```
+
+**核心特性:**
+- ✅ **零配置**: 添加新枚举，路由自动创建
+- ✅ **动态发现**: 使用 EnumRegistry 查找所有枚举
+- ✅ **一致的 URL**: 枚举 key 自动转换为 kebab-case（例如：`payment_methods` → `payment-methods`）
+- ✅ **完全可扩展**: 支持无限数量的枚举，无需修改代码
 
 ### 响应格式
 
@@ -513,7 +527,34 @@ GET /api/enums/publish-statuses       # 发布状态
 
 ### 手动注册路由
 
-如果你希望手动控制，保持 `auto_register_routes` 为 `false` 并自己注册路由:
+如果你希望手动控制，保持 `auto_register_routes` 为 `false` 并自己注册路由。
+
+**方式 1: 动态注册（推荐）**
+
+使用 EnumRegistry 动态注册路由:
+
+```php
+// routes/api.php
+use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
+use WeiJuKeJi\EnumOptions\Support\EnumRegistry;
+use Illuminate\Support\Str;
+
+Route::prefix('enums')->middleware('auth:sanctum')->group(function () {
+    // 固定路由
+    Route::get('list', [EnumController::class, 'list']);
+    Route::get('all', [EnumController::class, 'all']);
+
+    // 动态注册所有枚举
+    foreach (EnumRegistry::all() as $key => $config) {
+        Route::get(Str::kebab($key), [EnumController::class, 'show'])
+            ->defaults('key', $key);
+    }
+});
+```
+
+**方式 2: 特定路由**
+
+手动注册特定枚举的路由:
 
 ```php
 // routes/api.php
@@ -521,25 +562,37 @@ use WeiJuKeJi\EnumOptions\Http\Controllers\EnumController;
 
 Route::prefix('enums')->middleware('auth:sanctum')->group(function () {
     Route::get('all', [EnumController::class, 'all']);
-    Route::get('payment-methods', [EnumController::class, 'paymentMethods']);
-    // ... 其他路由
+
+    // 使用动态 show() 方法注册特定枚举
+    Route::get('payment-methods', [EnumController::class, 'show'])
+        ->defaults('key', 'payment_methods');
+    Route::get('order-statuses', [EnumController::class, 'show'])
+        ->defaults('key', 'order_statuses');
 });
 ```
 
-或创建自己的控制器:
+**方式 3: 自定义控制器**
+
+创建自己的控制器实现自定义响应格式:
 
 ```php
 namespace App\Http\Controllers;
 
-use WeiJuKeJi\EnumOptions\Presets\Payment\PaymentMethodEnum;
+use WeiJuKeJi\EnumOptions\Support\EnumRegistry;
 
 class MyEnumController extends Controller
 {
-    public function paymentMethods()
+    public function show(string $key)
     {
+        $enumClass = EnumRegistry::getEnumClass($key);
+
+        if (!$enumClass) {
+            return response()->json(['error' => '未找到'], 404);
+        }
+
         return response()->json([
-            'code' => 200,
-            'data' => PaymentMethodEnum::options(),
+            'success' => true,
+            'data' => $enumClass::options(),
         ]);
     }
 }
