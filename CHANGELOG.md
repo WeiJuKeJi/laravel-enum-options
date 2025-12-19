@@ -2,7 +2,7 @@
 
 All notable changes to `laravel-enum-options` will be documented in this file.
 
-## [Unreleased]
+## [1.2.0] - 2025-12-19
 
 ### Added
 - **Tree format for enum list**: Added `?format=tree` query parameter support for `/api/enums/list` endpoint
