@@ -34,10 +34,10 @@ enum GenderEnum: string
         }
 
         return match ($this) {
-            self::MALE => 'blue',
-            self::FEMALE => 'pink',
-            self::OTHER => 'purple',
-            self::PREFER_NOT_TO_SAY => 'gray',
+            self::MALE => 'primary',                           // 男 - 蓝色
+            self::FEMALE => 'danger',                          // 女 - 粉色（danger在某些主题是粉色）
+            self::OTHER => 'success',                          // 其他 - 绿色
+            self::PREFER_NOT_TO_SAY => 'info',                 // 保密 - 灰色
         };
     }
 

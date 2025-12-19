@@ -38,11 +38,10 @@ enum ApprovalStatusEnum: string
         }
 
         return match ($this) {
-            self::DRAFT => 'gray',
-            self::PENDING => 'orange',
-            self::APPROVED => 'green',
-            self::REJECTED => 'red',
-            self::CANCELLED, self::REVOKED => 'gray',
+            self::APPROVED => 'success',                       // 已通过 - 成功
+            self::PENDING => 'warning',                         // 待审批 - 需要处理
+            self::REJECTED => 'danger',                        // 已拒绝 - 错误
+            self::DRAFT, self::CANCELLED, self::REVOKED => 'info', // 草稿/取消/撤销 - 中性
         };
     }
 

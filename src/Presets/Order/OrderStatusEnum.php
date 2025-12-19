@@ -46,14 +46,11 @@ enum OrderStatusEnum: string
         }
 
         return match ($this) {
-            self::PENDING => 'orange',
-            self::CONFIRMED => 'blue',
-            self::PROCESSING => 'cyan',
-            self::COMPLETED => 'green',
-            self::CANCELLED, self::EXPIRED => 'gray',
-            self::FAILED => 'red',
-            self::ON_HOLD => 'purple',
-            self::REFUNDED, self::PARTIALLY_REFUNDED => 'red',
+            self::COMPLETED => 'success',                       // 已完成 - 成功
+            self::CONFIRMED, self::PROCESSING => 'primary',     // 已确认/处理中 - 进行中
+            self::PENDING => 'warning',                         // 待处理 - 需要注意
+            self::FAILED, self::REFUNDED, self::PARTIALLY_REFUNDED => 'danger', // 失败/退款 - 错误
+            self::CANCELLED, self::EXPIRED, self::ON_HOLD => 'info', // 取消/过期/暂停 - 中性
         };
     }
 

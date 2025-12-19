@@ -12,6 +12,23 @@ All notable changes to `laravel-enum-options` will be documented in this file.
   - New translation files: `lang/zh-CN/categories.php` and `lang/en/categories.php`
   - Zero configuration required - automatically uses directory names with proper capitalization
 
+### Changed
+- **BREAKING: Color system redesign**: Complete overhaul to Element Plus standard types
+  - Replaced all vivid colors (orange, blue, cyan, green, etc.) with semantic types
+  - New color system: `success`, `primary`, `warning`, `danger`, `info`, `''` (default)
+  - Color semantics:
+    - `success`: Completed/successful states (green) - e.g., paid, active, published
+    - `primary`: In-progress/main operations (blue) - e.g., processing, scheduled
+    - `warning`: Pending/needs attention (orange) - e.g., unpaid, pending approval
+    - `danger`: Failed/error/negative states (red) - e.g., failed, rejected, banned
+    - `info`: Neutral/cancelled/inactive (gray) - e.g., cancelled, draft, archived
+    - `''`: Default style with no special coloring
+  - Updated all 9 preset enums: PaymentStatusEnum, PaymentMethodEnum, RefundStatusEnum, OrderStatusEnum, OrderTypeEnum, UserStatusEnum, GenderEnum, ApprovalStatusEnum, PublishStatusEnum
+  - Simplified config: Removed `color_scheme` and `color_maps` sections
+  - Added reference documentation for Element Plus standard types in config
+  - **BREAKING**: Custom color overrides using old color names need updating to Element Plus types
+  - **BREAKING**: No backward compatibility - all old color names removed from preset enums
+
 ### Fixed
 - **Critical: Route kebab-case conversion**: Fixed `Str::kebab()` not converting snake_case to kebab-case
   - Changed from `Str::kebab($key)` to `Str::slug($key, '-')` in EnumRegistry and ServiceProvider

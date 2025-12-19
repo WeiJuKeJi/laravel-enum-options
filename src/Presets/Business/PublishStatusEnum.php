@@ -36,11 +36,10 @@ enum PublishStatusEnum: string
         }
 
         return match ($this) {
-            self::DRAFT => 'gray',
-            self::SCHEDULED => 'blue',
-            self::PUBLISHED => 'green',
-            self::UNPUBLISHED => 'orange',
-            self::ARCHIVED => 'gray',
+            self::PUBLISHED => 'success',                      // 已发布 - 成功
+            self::SCHEDULED => 'primary',                       // 定时发布 - 进行中
+            self::UNPUBLISHED => 'warning',                     // 未发布 - 需要注意
+            self::DRAFT, self::ARCHIVED => 'info',             // 草稿/归档 - 中性
         };
     }
 

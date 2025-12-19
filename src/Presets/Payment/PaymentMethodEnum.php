@@ -52,17 +52,14 @@ enum PaymentMethodEnum: string
         }
 
         return match ($this) {
-            self::WECHAT => 'green',
-            self::ALIPAY => 'blue',
-            self::BANK_TRANSFER => 'orange',
-            self::CASH => 'purple',
-            self::CREDIT_CARD, self::DEBIT_CARD => 'cyan',
-            self::UNION_PAY => 'red',
-            self::PAYPAL => 'blue',
-            self::APPLE_PAY => 'gray',
-            self::GOOGLE_PAY => 'blue',
-            self::POS, self::WECHAT_POS => 'lime',
-            self::OTHER => 'default',
+            self::WECHAT, self::ALIPAY => 'success',           // 主流支付 - 绿色/蓝色
+            self::BANK_TRANSFER => 'warning',                   // 银行转账 - 需要确认
+            self::CASH => 'info',                              // 现金 - 中性
+            self::CREDIT_CARD, self::DEBIT_CARD => 'primary',  // 银行卡 - 主要
+            self::UNION_PAY => 'danger',                       // 银联 - 红色品牌
+            self::PAYPAL, self::APPLE_PAY, self::GOOGLE_PAY => 'primary', // 国际支付 - 主要
+            self::POS, self::WECHAT_POS => 'primary',          // POS机 - 主要
+            self::OTHER => '',                                 // 其他 - 默认
         };
     }
 

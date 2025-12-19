@@ -46,13 +46,13 @@ enum PaymentStatusEnum: string
         }
 
         return match ($this) {
-            self::UNPAID, self::PENDING => 'orange',
-            self::PAYING => 'blue',
-            self::PAID => 'green',
-            self::FAILED, self::TIMEOUT => 'red',
-            self::CANCELLED => 'gray',
-            self::REFUNDING => 'purple',
-            self::REFUNDED, self::PARTIALLY_REFUNDED => 'red',
+            self::PAID => 'success',                           // 已支付 - 成功完成
+            self::PAYING => 'primary',                         // 支付中 - 进行中
+            self::UNPAID, self::PENDING => 'warning',          // 未支付/待支付 - 需要处理
+            self::FAILED, self::TIMEOUT => 'danger',           // 失败/超时 - 错误状态
+            self::CANCELLED => 'info',                         // 已取消 - 中性
+            self::REFUNDING => 'primary',                      // 退款中 - 进行中
+            self::REFUNDED, self::PARTIALLY_REFUNDED => 'danger', // 已退款 - 负向状态
         };
     }
 

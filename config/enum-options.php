@@ -17,46 +17,21 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | 颜色方案
+    | Element Plus 标准颜色类型（参考）
     |--------------------------------------------------------------------------
     |
-    | 选择前端 UI 库的颜色方案
-    | 支持: element-plus, ant-design, tailwind, bootstrap
+    | 所有预设枚举直接使用 Element Plus 标准类型
+    | 不需要额外的颜色映射或转换
+    |
+    | 标准类型及其语义：
+    | - success:  成功/完成状态（绿色）
+    | - primary:  进行中/主要操作（蓝色）
+    | - warning:  待处理/警告状态（橙色）
+    | - danger:   失败/错误/负向状态（红色）
+    | - info:     中性/取消/非活动状态（灰色）
+    | - '':       默认样式（无特殊颜色）
     |
     */
-    'color_scheme' => 'element-plus',
-
-    /*
-    |--------------------------------------------------------------------------
-    | 颜色映射
-    |--------------------------------------------------------------------------
-    |
-    | 不同 UI 库的颜色映射表
-    |
-    */
-    'color_maps' => [
-        'element-plus' => [
-            'primary' => 'primary',
-            'success' => 'success',
-            'warning' => 'warning',
-            'danger' => 'danger',
-            'info' => 'info',
-        ],
-        'ant-design' => [
-            'primary' => 'blue',
-            'success' => 'green',
-            'warning' => 'orange',
-            'danger' => 'red',
-            'info' => 'blue',
-        ],
-        'tailwind' => [
-            'primary' => 'blue',
-            'success' => 'green',
-            'warning' => 'yellow',
-            'danger' => 'red',
-            'info' => 'blue',
-        ],
-    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -79,12 +54,14 @@ return [
     |--------------------------------------------------------------------------
     |
     | 覆盖预设枚举的颜色，无需修改枚举类
+    | 使用 Element Plus 标准类型: success, primary, warning, danger, info, ''
     |
     */
     'color_overrides' => [
-        // 'payment_method' => [
-        //     'wechat' => 'green',
-        //     'alipay' => 'blue',
+        // 'payment_status' => [
+        //     'paid' => 'success',
+        //     'pending' => 'warning',
+        //     'failed' => 'danger',
         // ],
     ],
 

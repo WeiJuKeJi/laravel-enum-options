@@ -40,13 +40,12 @@ enum OrderTypeEnum: string
         }
 
         return match ($this) {
-            self::STANDARD => 'default',
-            self::PRESALE => 'purple',
-            self::GROUP_BUY => 'orange',
-            self::FLASH_SALE => 'red',
-            self::SUBSCRIPTION => 'blue',
-            self::GIFT => 'pink',
-            self::EXCHANGE => 'cyan',
+            self::STANDARD => '',                              // 标准订单 - 默认
+            self::SUBSCRIPTION => 'success',                   // 订阅订单 - 成功/稳定
+            self::PRESALE, self::GROUP_BUY => 'warning',       // 预售/团购 - 需要关注
+            self::FLASH_SALE => 'danger',                      // 限时特惠 - 紧急/热门
+            self::GIFT => 'primary',                           // 礼品订单 - 主要
+            self::EXCHANGE => 'info',                          // 兑换订单 - 中性
         };
     }
 

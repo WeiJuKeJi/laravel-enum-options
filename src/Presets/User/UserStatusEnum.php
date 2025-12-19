@@ -38,12 +38,11 @@ enum UserStatusEnum: string
         }
 
         return match ($this) {
-            self::ACTIVE => 'green',
-            self::INACTIVE => 'gray',
-            self::SUSPENDED => 'orange',
-            self::BANNED => 'red',
-            self::DELETED => 'gray',
-            self::PENDING_VERIFICATION => 'blue',
+            self::ACTIVE => 'success',                         // 正常 - 成功
+            self::PENDING_VERIFICATION => 'primary',            // 待验证 - 进行中
+            self::SUSPENDED => 'warning',                       // 已暂停 - 警告
+            self::BANNED, self::DELETED => 'danger',           // 封禁/删除 - 危险
+            self::INACTIVE => 'info',                          // 未激活 - 中性
         };
     }
 
