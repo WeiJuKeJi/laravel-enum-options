@@ -24,15 +24,76 @@
 - **请求方法**: GET
 - **响应格式**: JSON
 
+### 🔄 动态路由系统
+
+**重要提示**：所有枚举路由都是自动生成的，不需要在前端硬编码具体的枚举类型！
+
+**推荐的使用流程**：
+1. 调用 `/api/enums/list` 获取所有可用枚举的元数据
+2. 使用返回的 `key` 或 `route` 字段动态拼接/调用枚举接口
+3. 前端无需维护枚举类型列表，支持后端动态扩展
+
 ### 可用接口
 
-#### 1. 获取所有枚举（推荐）
+#### 1. 获取枚举列表（元数据）⭐ 推荐第一步
+
+```http
+GET /api/enums/list
+```
+
+**用途**：获取系统中所有可用枚举的元数据信息
+
+**响应示例**：
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "list": [
+      {
+        "key": "payment_methods",
+        "name": "支付方式",
+        "description": "所有可用的支付方式选项",
+        "route": "/api/enums/payment-methods",
+        "count": 13,
+        "category": "payment"
+      },
+      {
+        "key": "payment_statuses",
+        "name": "支付状态",
+        "description": "所有可用的支付状态选项",
+        "route": "/api/enums/payment-statuses",
+        "count": 10,
+        "category": "payment"
+      },
+      {
+        "key": "order_statuses",
+        "name": "订单状态",
+        "description": "所有可用的订单状态选项",
+        "route": "/api/enums/order-statuses",
+        "count": 10,
+        "category": "order"
+      }
+    ],
+    "total": 9
+  }
+}
+```
+
+**使用场景**：
+- 应用初始化时获取可用枚举列表
+- 动态生成管理后台的枚举配置界面
+- 自动生成表单中的枚举选择器
+
+#### 2. 获取所有枚举选项（推荐）
 
 ```http
 GET /api/enums/all
 ```
 
-**响应示例**:
+**用途**：一次性获取所有枚举的完整选项数据
+
+**响应示例**：
 ```json
 {
   "code": 200,
@@ -66,42 +127,76 @@ GET /api/enums/all
     ],
     "order_statuses": [...],
     "order_types": [...],
-    "refund_statuses": [...],
-    "user_statuses": [...],
-    "genders": [...],
-    "approval_statuses": [...],
-    "publish_statuses": [...]
+    "refund_statuses": [...]
+    // ... 其他所有枚举
   }
 }
 ```
 
-#### 2. 获取单个枚举类型
+**优势**：
+- 减少 HTTP 请求次数（从 N+1 次减少到 1 次）
+- 适合前端应用启动时批量加载
+- 推荐配合缓存策略使用
+
+#### 3. 获取单个枚举类型（动态路由）
 
 ```http
-GET /api/enums/payment-methods
-GET /api/enums/payment-statuses
-GET /api/enums/refund-statuses
-GET /api/enums/order-statuses
-GET /api/enums/order-types
-GET /api/enums/user-statuses
-GET /api/enums/genders
-GET /api/enums/approval-statuses
-GET /api/enums/publish-statuses
+GET /api/enums/{key}
 ```
 
-**响应示例**:
+**路径参数**：`key` 使用 kebab-case 格式（如：`payment-methods`）
+
+**动态使用示例**：
+```typescript
+// 1. 先获取枚举列表
+const { data: listData } = await axios.get('/api/enums/list')
+
+// 2. 动态调用每个枚举
+for (const enumInfo of listData.data.list) {
+  // 方式 A: 直接使用返回的 route
+  const { data } = await axios.get(enumInfo.route)
+
+  // 方式 B: 使用 key 拼接 URL
+  const url = `/api/enums/${enumInfo.key.replace(/_/g, '-')}`
+  const { data } = await axios.get(url)
+
+  // 方式 C: 使用工具函数
+  const { data } = await axios.get(`/api/enums/${kebabCase(enumInfo.key)}`)
+}
+```
+
+**常用枚举示例**：
+```http
+GET /api/enums/payment-methods    # 支付方式
+GET /api/enums/payment-statuses   # 支付状态
+GET /api/enums/order-statuses     # 订单状态
+GET /api/enums/user-statuses      # 用户状态
+GET /api/enums/genders            # 性别
+# ... 以及你自定义的任何枚举
+```
+
+**响应示例**：
 ```json
 {
   "code": 200,
   "msg": "success",
-  "data": [
-    {
-      "value": "wechat",
-      "label": "微信支付",
-      "color": "green",
-      "icon": "wechat"
-    }
-  ]
+  "data": {
+    "list": [
+      {
+        "value": "wechat",
+        "label": "微信支付",
+        "color": "green",
+        "icon": "wechat"
+      },
+      {
+        "value": "alipay",
+        "label": "支付宝",
+        "color": "blue",
+        "icon": "alipay"
+      }
+    ],
+    "total": 13
+  }
 }
 ```
 
@@ -197,54 +292,81 @@ interface EnumOption {
   icon?: string
 }
 
+interface EnumMetadata {
+  key: string
+  name: string
+  description: string
+  route: string
+  count: number
+  category: string
+}
+
 interface EnumState {
-  payment_methods: EnumOption[]
-  payment_statuses: EnumOption[]
-  refund_statuses: EnumOption[]
-  order_statuses: EnumOption[]
-  order_types: EnumOption[]
-  user_statuses: EnumOption[]
-  genders: EnumOption[]
-  approval_statuses: EnumOption[]
-  publish_statuses: EnumOption[]
+  // 动态存储所有枚举数据
+  enums: Record<string, EnumOption[]>
+  // 枚举元数据列表（从 /api/enums/list 获取）
+  metadata: EnumMetadata[]
   loaded: boolean
 }
 
 export const useEnumStore = defineStore('enum', {
   state: (): EnumState => ({
-    payment_methods: [],
-    payment_statuses: [],
-    refund_statuses: [],
-    order_statuses: [],
-    order_types: [],
-    user_statuses: [],
-    genders: [],
-    approval_statuses: [],
-    publish_statuses: [],
+    enums: {},
+    metadata: [],
     loaded: false
   }),
 
   getters: {
     // 根据 value 查找标签
-    getLabel: (state) => (type: keyof EnumState, value: string) => {
-      const options = state[type] as EnumOption[]
+    getLabel: (state) => (type: string, value: string) => {
+      const options = state.enums[type] || []
       return options.find(item => item.value === value)?.label || value
     },
 
     // 根据 value 查找颜色
-    getColor: (state) => (type: keyof EnumState, value: string) => {
-      const options = state[type] as EnumOption[]
+    getColor: (state) => (type: string, value: string) => {
+      const options = state.enums[type] || []
       return options.find(item => item.value === value)?.color || 'default'
     },
 
     // 根据 value 查找完整对象
-    getOption: (state) => (type: keyof EnumState, value: string) => {
-      const options = state[type] as EnumOption[]
+    getOption: (state) => (type: string, value: string) => {
+      const options = state.enums[type] || []
       return options.find(item => item.value === value)
+    },
+
+    // 获取指定枚举的所有选项
+    getEnumOptions: (state) => (type: string) => {
+      return state.enums[type] || []
+    },
+
+    // 根据分类获取枚举
+    getEnumsByCategory: (state) => (category: string) => {
+      return state.metadata.filter(item => item.category === category)
+    },
+
+    // 获取所有枚举的 key 列表
+    getAllEnumKeys: (state) => {
+      return state.metadata.map(item => item.key)
     }
   },
 
   actions: {
+    // 加载枚举列表元数据（推荐第一步）
+    async loadEnumList() {
+      try {
+        const { data } = await axios.get('/api/enums/list')
+        if (data.code === 200) {
+          this.metadata = data.data.list
+          return this.metadata
+        }
+      } catch (error) {
+        console.error('Failed to load enum list:', error)
+        return []
+      }
+    },
+
+    // 加载所有枚举数据（推荐方式）
     async loadEnums() {
       if (this.loaded) return
 
@@ -252,7 +374,7 @@ export const useEnumStore = defineStore('enum', {
         const { data } = await axios.get('/api/enums/all')
 
         if (data.code === 200) {
-          Object.assign(this, data.data)
+          this.enums = data.data
           this.loaded = true
 
           // 可选: 存储到 localStorage
@@ -265,9 +387,32 @@ export const useEnumStore = defineStore('enum', {
         // 失败时尝试从 localStorage 读取
         const cached = localStorage.getItem('enums')
         if (cached) {
-          Object.assign(this, JSON.parse(cached))
+          this.enums = JSON.parse(cached)
           this.loaded = true
         }
+      }
+    },
+
+    // 动态加载单个枚举（按需加载）
+    async loadEnum(key: string) {
+      // 如果已加载，直接返回
+      if (this.enums[key]) {
+        return this.enums[key]
+      }
+
+      try {
+        // 将 snake_case 转换为 kebab-case
+        const kebabKey = key.replace(/_/g, '-')
+        const { data } = await axios.get(`/api/enums/${kebabKey}`)
+
+        if (data.code === 200) {
+          // 存储到 state
+          this.enums[key] = data.data.list || data.data
+          return this.enums[key]
+        }
+      } catch (error) {
+        console.error(`Failed to load enum ${key}:`, error)
+        return []
       }
     },
 
@@ -283,8 +428,11 @@ export const useEnumStore = defineStore('enum', {
     // 强制重新加载
     async reload() {
       this.loaded = false
+      this.enums = {}
+      this.metadata = []
       localStorage.removeItem('enums')
       localStorage.removeItem('enums_timestamp')
+      await this.loadEnumList()
       await this.loadEnums()
     }
   }
@@ -312,7 +460,7 @@ enumStore.loadEnums()
 app.mount('#app')
 ```
 
-#### 3. 在组件中使用
+#### 3. 在组件中使用（动态方式）
 
 ```vue
 <template>
@@ -322,10 +470,10 @@ app.mount('#app')
       {{ order.status.label }}
     </el-tag>
 
-    <!-- 2. 下拉选择 -->
+    <!-- 2. 下拉选择（动态获取枚举选项） -->
     <el-select v-model="form.payment_method" placeholder="请选择支付方式">
       <el-option
-        v-for="method in enumStore.payment_methods"
+        v-for="method in enumStore.getEnumOptions('payment_methods')"
         :key="method.value"
         :value="method.value"
         :label="method.label"
@@ -337,10 +485,10 @@ app.mount('#app')
       </el-option>
     </el-select>
 
-    <!-- 3. 筛选器 -->
+    <!-- 3. 筛选器（动态获取） -->
     <el-select v-model="filters.status" placeholder="订单状态" clearable>
       <el-option
-        v-for="status in enumStore.order_statuses"
+        v-for="status in enumStore.getEnumOptions('order_statuses')"
         :key="status.value"
         :value="status.value"
         :label="status.label"
@@ -350,14 +498,37 @@ app.mount('#app')
     <!-- 4. 只显示标签（根据 value） -->
     <span>{{ enumStore.getLabel('payment_methods', 'wechat') }}</span>
     <!-- 输出: 微信支付 -->
+
+    <!-- 5. 动态渲染所有枚举（基于元数据） -->
+    <div v-for="meta in enumStore.metadata" :key="meta.key">
+      <h3>{{ meta.name }}</h3>
+      <el-tag
+        v-for="option in enumStore.getEnumOptions(meta.key)"
+        :key="option.value"
+        :type="option.color"
+        style="margin-right: 8px"
+      >
+        {{ option.label }}
+      </el-tag>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useEnumStore } from '@/stores/enum'
 
 const enumStore = useEnumStore()
+
+// 如果需要按需加载单个枚举
+onMounted(async () => {
+  // 方式 A: 加载所有枚举元数据
+  await enumStore.loadEnumList()
+
+  // 方式 B: 按需加载特定枚举
+  await enumStore.loadEnum('payment_methods')
+  await enumStore.loadEnum('order_statuses')
+})
 
 const form = ref({
   payment_method: ''
@@ -452,7 +623,7 @@ const enums = inject('enums')
 
 ```typescript
 // contexts/EnumContext.tsx
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
 
 interface EnumOption {
@@ -462,62 +633,66 @@ interface EnumOption {
   icon?: string
 }
 
+interface EnumMetadata {
+  key: string
+  name: string
+  description: string
+  route: string
+  count: number
+  category: string
+}
+
 interface EnumContextType {
-  paymentMethods: EnumOption[]
-  paymentStatuses: EnumOption[]
-  refundStatuses: EnumOption[]
-  orderStatuses: EnumOption[]
-  orderTypes: EnumOption[]
-  userStatuses: EnumOption[]
-  genders: EnumOption[]
-  approvalStatuses: EnumOption[]
-  publishStatuses: EnumOption[]
+  // 动态存储所有枚举数据
+  enums: Record<string, EnumOption[]>
+  // 枚举元数据列表
+  metadata: EnumMetadata[]
   loaded: boolean
+  // 工具方法
   getLabel: (type: string, value: string) => string
   getColor: (type: string, value: string) => string
   getOption: (type: string, value: string) => EnumOption | undefined
+  getEnumOptions: (type: string) => EnumOption[]
+  loadEnum: (key: string) => Promise<EnumOption[]>
+  reload: () => Promise<void>
 }
 
 const EnumContext = createContext<EnumContextType | undefined>(undefined)
 
 export const EnumProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [enums, setEnums] = useState({
-    paymentMethods: [],
-    paymentStatuses: [],
-    refundStatuses: [],
-    orderStatuses: [],
-    orderTypes: [],
-    userStatuses: [],
-    genders: [],
-    approvalStatuses: [],
-    publishStatuses: []
-  })
+  const [enums, setEnums] = useState<Record<string, EnumOption[]>>({})
+  const [metadata, setMetadata] = useState<EnumMetadata[]>([])
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
     loadEnums()
+    loadEnumList()
   }, [])
 
+  // 加载枚举列表元数据
+  const loadEnumList = async () => {
+    try {
+      const { data } = await axios.get('/api/enums/list')
+      if (data.code === 200) {
+        setMetadata(data.data.list)
+      }
+    } catch (error) {
+      console.error('Failed to load enum list:', error)
+    }
+  }
+
+  // 加载所有枚举数据
   const loadEnums = async () => {
     try {
       const { data } = await axios.get('/api/enums/all')
 
       if (data.code === 200) {
-        setEnums({
-          paymentMethods: data.data.payment_methods,
-          paymentStatuses: data.data.payment_statuses,
-          refundStatuses: data.data.refund_statuses,
-          orderStatuses: data.data.order_statuses,
-          orderTypes: data.data.order_types,
-          userStatuses: data.data.user_statuses,
-          genders: data.data.genders,
-          approvalStatuses: data.data.approval_statuses,
-          publishStatuses: data.data.publish_statuses
-        })
+        setEnums(data.data)
         setLoaded(true)
 
         // 缓存到 localStorage
         localStorage.setItem('enums', JSON.stringify(data.data))
+        localStorage.setItem('enums_timestamp', Date.now().toString())
       }
     } catch (error) {
       console.error('Failed to load enums:', error)
@@ -525,40 +700,82 @@ export const EnumProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 尝试从缓存加载
       const cached = localStorage.getItem('enums')
       if (cached) {
-        const cachedData = JSON.parse(cached)
-        setEnums({
-          paymentMethods: cachedData.payment_methods,
-          paymentStatuses: cachedData.payment_statuses,
-          refundStatuses: cachedData.refund_statuses,
-          orderStatuses: cachedData.order_statuses,
-          orderTypes: cachedData.order_types,
-          userStatuses: cachedData.user_statuses,
-          genders: cachedData.genders,
-          approvalStatuses: cachedData.approval_statuses,
-          publishStatuses: cachedData.publish_statuses
-        })
+        setEnums(JSON.parse(cached))
         setLoaded(true)
       }
     }
   }
 
-  const getLabel = (type: string, value: string): string => {
-    const options = enums[type as keyof typeof enums] as EnumOption[]
-    return options?.find(item => item.value === value)?.label || value
-  }
+  // 动态加载单个枚举（按需加载）
+  const loadEnum = useCallback(async (key: string): Promise<EnumOption[]> => {
+    // 如果已加载，直接返回
+    if (enums[key]) {
+      return enums[key]
+    }
 
-  const getColor = (type: string, value: string): string => {
-    const options = enums[type as keyof typeof enums] as EnumOption[]
-    return options?.find(item => item.value === value)?.color || 'default'
-  }
+    try {
+      // 将 snake_case 转换为 kebab-case
+      const kebabKey = key.replace(/_/g, '-')
+      const { data } = await axios.get(`/api/enums/${kebabKey}`)
 
-  const getOption = (type: string, value: string): EnumOption | undefined => {
-    const options = enums[type as keyof typeof enums] as EnumOption[]
-    return options?.find(item => item.value === value)
-  }
+      if (data.code === 200) {
+        const options = data.data.list || data.data
+        // 更新 state
+        setEnums(prev => ({
+          ...prev,
+          [key]: options
+        }))
+        return options
+      }
+    } catch (error) {
+      console.error(`Failed to load enum ${key}:`, error)
+      return []
+    }
+    return []
+  }, [enums])
+
+  // 强制重新加载
+  const reload = useCallback(async () => {
+    setLoaded(false)
+    setEnums({})
+    setMetadata([])
+    localStorage.removeItem('enums')
+    localStorage.removeItem('enums_timestamp')
+    await loadEnumList()
+    await loadEnums()
+  }, [])
+
+  const getLabel = useCallback((type: string, value: string): string => {
+    const options = enums[type] || []
+    return options.find(item => item.value === value)?.label || value
+  }, [enums])
+
+  const getColor = useCallback((type: string, value: string): string => {
+    const options = enums[type] || []
+    return options.find(item => item.value === value)?.color || 'default'
+  }, [enums])
+
+  const getOption = useCallback((type: string, value: string): EnumOption | undefined => {
+    const options = enums[type] || []
+    return options.find(item => item.value === value)
+  }, [enums])
+
+  const getEnumOptions = useCallback((type: string): EnumOption[] => {
+    return enums[type] || []
+  }, [enums])
 
   return (
-    <EnumContext.Provider value={{ ...enums, loaded, getLabel, getColor, getOption }}>
+    <EnumContext.Provider value={{
+      enums,
+      metadata,
+      loaded,
+      getLabel,
+      getColor,
+      getOption,
+      getEnumOptions,
+      loadEnum,
+      reload
+    }}>
       {children}
     </EnumContext.Provider>
   )
