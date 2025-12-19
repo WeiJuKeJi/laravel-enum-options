@@ -4,6 +4,14 @@ All notable changes to `laravel-enum-options` will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- **Tree format for enum list**: Added `?format=tree` query parameter support for `/api/enums/list` endpoint
+  - Returns hierarchical structure grouped by category for frontend left-tree-right-table layout
+  - Fully dynamic category label resolution with configurable labels
+  - Priority: `category_labels` config > translation files > ucfirst(category)
+  - New translation files: `lang/zh-CN/categories.php` and `lang/en/categories.php`
+  - Zero configuration required - automatically uses directory names with proper capitalization
+
 ### Fixed
 - **Critical: Route kebab-case conversion**: Fixed `Str::kebab()` not converting snake_case to kebab-case
   - Changed from `Str::kebab($key)` to `Str::slug($key, '-')` in EnumRegistry and ServiceProvider

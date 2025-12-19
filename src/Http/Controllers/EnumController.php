@@ -3,6 +3,7 @@
 namespace WeiJuKeJi\EnumOptions\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use WeiJuKeJi\EnumOptions\Support\EnumRegistry;
 
@@ -16,10 +17,24 @@ class EnumController extends Controller
     /**
      * 获取所有可用的枚举项目列表
      * 返回枚举元数据，包括名称、描述、路由等信息
+     *
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
         $metadata = EnumRegistry::getMetadata();
+
+        // 如果请求树形格式（用于前端左树右表布局）
+        if ($request->query('format') === 'tree') {
+            $tree = $this->buildTree($metadata);
+            return $this->respond([
+                'tree' => $tree,
+                'total' => count($metadata),
+            ]);
+        }
+
+        // 默认扁平列表
         return $this->respondWithList($metadata);
     }
 
@@ -119,5 +134,60 @@ class EnumController extends Controller
             $format['code_key'] => 404,
             $format['message_key'] => $message,
         ], 404);
+    }
+
+    /**
+     * 构建树形结构
+     * 用于前端左树右表布局
+     *
+     * @param array $metadata
+     * @return array
+     */
+    protected function buildTree(array $metadata): array
+    {
+        $grouped = collect($metadata)->groupBy('category');
+        $tree = [];
+
+        foreach ($grouped as $category => $items) {
+            $tree[] = [
+                'id' => $category,
+                'label' => $this->getCategoryLabel($category),
+                'children' => $items->map(fn($item) => [
+                    'id' => $item['key'],
+                    'label' => $item['name'],
+                    'key' => $item['key'],
+                    'route' => $item['route'],
+                    'count' => $item['count'],
+                    'description' => $item['description'] ?? '',
+                ])->values()->toArray(),
+            ];
+        }
+
+        return $tree;
+    }
+
+    /**
+     * 获取分类标签
+     * 优先级：配置 > 翻译 > 首字母大写
+     *
+     * @param string $category
+     * @return string
+     */
+    protected function getCategoryLabel(string $category): string
+    {
+        // 1. 优先使用配置中的自定义标签
+        $label = config("enum-options.category_labels.{$category}");
+        if ($label) {
+            return $label;
+        }
+
+        // 2. 尝试使用翻译文件（支持多语言）
+        $translated = trans("enum-options::categories.{$category}");
+        if ($translated !== "enum-options::categories.{$category}") {
+            return $translated;
+        }
+
+        // 3. 回退：首字母大写
+        return ucfirst($category);
     }
 }
