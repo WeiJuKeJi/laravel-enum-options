@@ -245,7 +245,7 @@ class EnumRegistry
                 'key' => $key,
                 'name' => $config['name'] ?? $key,
                 'description' => $config['description'] ?? '',
-                'route' => $config['route'] ?? '/enums/' . Str::kebab($key),
+                'route' => $config['route'] ?? '/enums/' . Str::slug($key, '-'),
                 'count' => count($enumClass::cases()),
                 'category' => $config['category'] ?? 'other',
             ];

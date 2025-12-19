@@ -4,6 +4,14 @@ All notable changes to `laravel-enum-options` will be documented in this file.
 
 ## [Unreleased]
 
+### Fixed
+- **Critical: Route kebab-case conversion**: Fixed `Str::kebab()` not converting snake_case to kebab-case
+  - Changed from `Str::kebab($key)` to `Str::slug($key, '-')` in EnumRegistry and ServiceProvider
+  - Routes now correctly generate as `/api/enums/approval-statuses` instead of `/api/enums/approval_statuses`
+  - Affects both actual route registration and `/api/enums/list` metadata response
+  - Root cause: `Str::kebab()` is designed for camelCase → kebab-case, not snake_case → kebab-case
+  - Solution: `Str::slug()` is Laravel's built-in method for URL-friendly string conversion
+
 ## [1.1.0] - 2025-01-18
 
 ### Added

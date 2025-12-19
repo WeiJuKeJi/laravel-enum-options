@@ -123,7 +123,7 @@ try {
     echo "   发现 " . count($enums) . " 个枚举:\n\n";
 
     foreach ($enums as $key => $config) {
-        $route = \Illuminate\Support\Str::kebab($key);
+        $route = str_replace('_', '-', $key);  // 简化版，避免依赖 Str 类
         echo "   • {$key}\n";
         echo "     类: {$config['class']}\n";
         echo "     路由: /api/enums/{$route}\n";

@@ -82,7 +82,7 @@ class EnumOptionsServiceProvider extends ServiceProvider
 
                 foreach ($enums as $key => $config) {
                     // 将 snake_case key 转换为 kebab-case URL
-                    $route = \Illuminate\Support\Str::kebab($key);
+                    $route = \Illuminate\Support\Str::slug($key, '-');
 
                     $router->get($route, [\WeiJuKeJi\EnumOptions\Http\Controllers\EnumController::class, 'show'])
                         ->defaults('key', $key)
