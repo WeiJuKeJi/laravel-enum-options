@@ -128,6 +128,9 @@ enum SubscriptionStatusEnum: string
 
 ## Available Preset Enums
 
+### Common
+- **BooleanEnum**: yes, no, y, n, 1, 0 - compatible with multiple boolean formats
+
 ### Payment
 - **PaymentMethodEnum**: wechat, alipay, bank_transfer, cash, credit_card, debit_card, union_pay, paypal, apple_pay, google_pay, pos, wechat_pos, other
 - **PaymentStatusEnum**: unpaid, pending, paying, paid, failed, cancelled, refunding, refunded, partially_refunded, timeout

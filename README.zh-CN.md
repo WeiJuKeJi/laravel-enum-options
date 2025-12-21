@@ -128,6 +128,9 @@ enum SubscriptionStatusEnum: string
 
 ## 可用的预设枚举
 
+### 通用 (Common)
+- **BooleanEnum**: yes, no, y, n, 1, 0 - 兼容多种布尔值格式
+
 ### 支付相关 (Payment)
 - **PaymentMethodEnum**: 微信、支付宝、银行转账、现金、信用卡、借记卡、云闪付、PayPal、Apple Pay、Google Pay、POS机、微信POS、其他
 - **PaymentStatusEnum**: 未支付、待支付、支付中、已支付、支付失败、已取消、退款中、已退款、部分退款、超时

@@ -95,4 +95,13 @@ return [
         'unpublished' => 'Unpublished',
         'archived' => 'Archived',
     ],
+
+    'boolean' => [
+        'yes' => 'Yes',
+        'no' => 'No',
+        'y' => 'Yes',
+        'n' => 'No',
+        '1' => 'Yes',
+        '0' => 'No',
+    ],
 ];

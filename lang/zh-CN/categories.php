@@ -15,6 +15,7 @@ return [
     'order' => '订单相关',
     'user' => '用户相关',
     'business' => '业务流程',
+    'common' => '通用枚举',
     'system' => '系统配置',
     'other' => '其他',
 ];
