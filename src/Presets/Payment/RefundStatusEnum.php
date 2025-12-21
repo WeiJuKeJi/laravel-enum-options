@@ -40,7 +40,7 @@ enum RefundStatusEnum: string
         }
 
         return match ($this) {
-            self::NONE => '',                                  // 无退款 - 默认
+            self::NONE => 'info',                               // 无退款 - 默认
             self::PROCESSING => 'primary',                      // 退款中 - 进行中
             self::PENDING => 'warning',                         // 待退款 - 需要处理
             self::PARTIAL, self::FULL => 'danger',             // 已退款 - 负向状态
