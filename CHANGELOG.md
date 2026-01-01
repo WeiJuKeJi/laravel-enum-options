@@ -2,6 +2,15 @@
 
 All notable changes to `laravel-enum-options` will be documented in this file.
 
+## [1.2.1] - 2026-01-01
+
+### Fixed
+- **Critical: Published enum conflict**: Fixed "Cannot declare enum" error when using `php artisan enum:publish`
+  - EnumRegistry now checks if preset enum has been published to app before loading
+  - Published enums in `app/Enums/` now take priority over preset enums
+  - Added `isEnumPublishedToApp()` method to detect published enum files
+  - Prevents duplicate enum declaration conflicts after running `enum:publish --all`
+
 ## [1.2.0] - 2025-12-19
 
 ### Added
