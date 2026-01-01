@@ -66,6 +66,14 @@ class EnumRegistry
             $files = glob($categoryDir . '/*.php');
 
             foreach ($files as $file) {
+                $fileName = basename($file);
+
+                // 检查应用中是否已经发布了同名的枚举文件
+                // 如果已发布，优先使用应用的枚举，跳过预设枚举
+                if (static::isEnumPublishedToApp($fileName)) {
+                    continue;
+                }
+
                 $className = 'WeiJuKeJi\\EnumOptions\\Presets\\'
                     . basename($categoryDir) . '\\'
                     . basename($file, '.php');
@@ -311,6 +319,35 @@ class EnumRegistry
         }
 
         return $categories;
+    }
+
+    /**
+     * 检查枚举文件是否已经发布到应用中
+     * 用于避免预设枚举和已发布枚举的重复声明冲突
+     *
+     * @param string $fileName 枚举文件名（例如：ApprovalStatusEnum.php）
+     * @return bool
+     */
+    protected static function isEnumPublishedToApp(string $fileName): bool
+    {
+        // 获取应用枚举的路径配置
+        $paths = config('enum-options.app_enums_paths', [app_path('Enums')]);
+
+        // 确保 paths 是数组
+        if (!is_array($paths)) {
+            $paths = [$paths];
+        }
+
+        // 检查所有配置的应用枚举路径
+        foreach ($paths as $path) {
+            $appEnumFile = $path . DIRECTORY_SEPARATOR . $fileName;
+
+            if (file_exists($appEnumFile)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
