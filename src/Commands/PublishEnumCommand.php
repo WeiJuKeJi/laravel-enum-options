@@ -89,7 +89,13 @@ class PublishEnumCommand extends Command
             return false;
         }
 
-        $destinationPath = app_path("Enums/{$name}Enum.php");
+        // 查找枚举所属的分类目录
+        $category = $this->findCategory($name);
+
+        // 保持目录结构：app/Enums/{Category}/{Name}Enum.php
+        $destinationPath = $category
+            ? app_path("Enums/{$category}/{$name}Enum.php")
+            : app_path("Enums/{$name}Enum.php");
 
         // 检查目标文件是否已存在
         if (File::exists($destinationPath)) {
@@ -100,13 +106,13 @@ class PublishEnumCommand extends Command
             }
         }
 
-        // 确保目标目录存在
-        File::ensureDirectoryExists(app_path('Enums'));
+        // 确保目标目录存在（包括分类子目录）
+        File::ensureDirectoryExists(dirname($destinationPath));
 
         // 读取源文件内容
         $content = File::get($sourcePath);
 
-        // 替换命名空间
+        // 替换命名空间（保持分类结构）
         $content = str_replace(
             'namespace WeiJuKeJi\EnumOptions\Presets',
             'namespace App\Enums',
@@ -132,6 +138,23 @@ class PublishEnumCommand extends Command
         foreach ($this->presets as $category => $enums) {
             if (isset($enums[$name])) {
                 return __DIR__.'/../../src/Presets/'.$enums[$name];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 查找枚举所属的分类目录
+     *
+     * @param string $name
+     * @return string|null
+     */
+    protected function findCategory(string $name): ?string
+    {
+        foreach ($this->presets as $category => $enums) {
+            if (isset($enums[$name])) {
+                return $category;
             }
         }
 

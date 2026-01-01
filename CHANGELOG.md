@@ -11,6 +11,13 @@ All notable changes to `laravel-enum-options` will be documented in this file.
   - Added `isEnumPublishedToApp()` method to detect published enum files
   - Prevents duplicate enum declaration conflicts after running `enum:publish --all`
 
+- **Critical: Namespace mismatch**: Fixed namespace mismatch between published file location and namespace declaration
+  - Published enums now maintain directory structure: `app/Enums/{Category}/{Name}Enum.php`
+  - Namespace correctly matches file location: `namespace App\Enums\{Category}`
+  - Example: `src/Presets/Payment/PaymentMethodEnum.php` → `app/Enums/Payment/PaymentMethodEnum.php`
+  - EnumRegistry now scans category subdirectories when discovering app enums
+  - Added `findCategory()` method in PublishEnumCommand to determine enum category
+
 ## [1.2.0] - 2025-12-19
 
 ### Added

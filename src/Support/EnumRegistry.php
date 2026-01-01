@@ -126,7 +126,7 @@ class EnumRegistry
                 continue;
             }
 
-            // 扫描目录中的所有 PHP 文件
+            // 1. 扫描根目录中的直接 PHP 文件
             $files = glob($path . '/*.php');
 
             foreach ($files as $file) {
@@ -153,6 +153,40 @@ class EnumRegistry
                     'description' => static::generateDescription($className),
                     'category' => static::guessCategory($className),
                 ];
+            }
+
+            // 2. 扫描分类子目录（例如：Payment, Order, User, Business）
+            $categoryDirs = glob($path . '/*', GLOB_ONLYDIR);
+
+            foreach ($categoryDirs as $categoryDir) {
+                $categoryName = basename($categoryDir);
+                $categoryFiles = glob($categoryDir . '/*.php');
+
+                foreach ($categoryFiles as $file) {
+                    $className = $namespace . '\\' . $categoryName . '\\' . basename($file, '.php');
+
+                    // 检查类是否存在且是枚举
+                    if (!class_exists($className) || !enum_exists($className)) {
+                        continue;
+                    }
+
+                    // 检查是否使用了 EnumOptions trait
+                    $reflection = new ReflectionEnum($className);
+                    $traits = $reflection->getTraitNames();
+
+                    if (!in_array(EnumOptions::class, $traits)) {
+                        continue;
+                    }
+
+                    // 生成枚举配置
+                    $key = static::generateKey($className);
+                    $discovered[$key] = [
+                        'class' => $className,
+                        'name' => static::generateName($className),
+                        'description' => static::generateDescription($className),
+                        'category' => strtolower($categoryName),
+                    ];
+                }
             }
         }
 
@@ -340,10 +374,22 @@ class EnumRegistry
 
         // 检查所有配置的应用枚举路径
         foreach ($paths as $path) {
+            // 1. 检查根目录中的直接文件
             $appEnumFile = $path . DIRECTORY_SEPARATOR . $fileName;
 
             if (file_exists($appEnumFile)) {
                 return true;
+            }
+
+            // 2. 检查分类子目录（Payment, Order, User, Business 等）
+            $categoryDirs = glob($path . '/*', GLOB_ONLYDIR);
+
+            foreach ($categoryDirs as $categoryDir) {
+                $categoryEnumFile = $categoryDir . DIRECTORY_SEPARATOR . $fileName;
+
+                if (file_exists($categoryEnumFile)) {
+                    return true;
+                }
             }
         }
 
