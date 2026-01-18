@@ -19,9 +19,17 @@ enum OrderTypeEnum: string
     case GIFT = 'gift';
     case EXCHANGE = 'exchange';
 
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '订单类型';
+    }
+
     public function label(): string
     {
-        return $this->trans($this->value, match ($this) {
+        return match ($this) {
             self::STANDARD => '普通订单',
             self::PRESALE => '预售订单',
             self::GROUP_BUY => '拼团订单',
@@ -29,7 +37,7 @@ enum OrderTypeEnum: string
             self::SUBSCRIPTION => '订阅订单',
             self::GIFT => '礼品订单',
             self::EXCHANGE => '兑换订单',
-        });
+        };
     }
 
     public function color(): string

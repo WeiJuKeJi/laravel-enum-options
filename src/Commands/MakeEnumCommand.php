@@ -12,6 +12,7 @@ class MakeEnumCommand extends Command
                             {name : The name of the enum class}
                             {--values= : Comma-separated list of enum values}
                             {--labels : Generate placeholder labels}
+                            {--display-name= : Chinese display name for the enum}
                             {--force : Overwrite existing file}';
 
     protected $description = 'Create a new enum class with EnumOptions trait';
@@ -73,6 +74,7 @@ class MakeEnumCommand extends Command
     {
         $enumName = Str::snake(str_replace('Enum', '', $className));
         $withLabels = $this->option('labels');
+        $displayName = $this->option('display-name');
 
         // 生成 case 语句
         $cases = collect($values)->map(function ($value) {
@@ -80,6 +82,9 @@ class MakeEnumCommand extends Command
 
             return "    case {$constant} = '{$value}';";
         })->implode("\n");
+
+        // 生成 displayName 方法
+        $displayNameMethod = $this->generateDisplayNameMethod($className, $displayName);
 
         // 生成 label 方法
         $labelMethod = $this->generateLabelMethod($values, $withLabels);
@@ -99,6 +104,8 @@ enum {$className}: string
     use EnumOptions;
 
 {$cases}
+
+{$displayNameMethod}
 
 {$labelMethod}
 
@@ -125,7 +132,7 @@ PHP;
             return <<<'PHP'
     public function label(): string
     {
-        return $this->trans($this->value);
+        return $this->value; // TODO: 自定义每个值的中文标签
     }
 PHP;
         }
@@ -140,9 +147,37 @@ PHP;
         return <<<PHP
     public function label(): string
     {
-        return \$this->trans(\$this->value, match (\$this) {
+        return match (\$this) {
 {$cases}
-        });
+        };
+    }
+PHP;
+    }
+
+    protected function generateDisplayNameMethod(string $className, ?string $displayName): string
+    {
+        // 如果用户提供了中文名称，使用用户提供的
+        if ($displayName) {
+            return <<<PHP
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '{$displayName}';
+    }
+PHP;
+        }
+
+        // 否则生成一个占位符，提示用户自定义
+        $generatedName = Str::title(str_replace('Enum', '', Str::snake($className, ' ')));
+        return <<<PHP
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '{$generatedName}'; // TODO: 自定义中文名称
     }
 PHP;
     }

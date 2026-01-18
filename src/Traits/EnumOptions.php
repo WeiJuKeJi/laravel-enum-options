@@ -17,6 +17,21 @@ trait EnumOptions
     abstract public function label(): string;
 
     /**
+     * 获取枚举的中文显示名称
+     * 子类可以覆盖此方法来提供自定义名称
+     * 默认返回从类名生成的名称
+     *
+     * @return string
+     */
+    public static function displayName(): string
+    {
+        $className = class_basename(static::class);
+        $name = preg_replace('/Enum$/', '', $className);
+        // 转换为空格分隔的标题格式
+        return \Illuminate\Support\Str::title(\Illuminate\Support\Str::snake($name, ' '));
+    }
+
+    /**
      * 获取颜色标识（用于前端显示）
      * 默认返回 'default'，子类可以覆盖
      */
@@ -173,36 +188,25 @@ trait EnumOptions
     }
 
     /**
-     * 获取标签（支持翻译文件）
+     * 获取标签（支持配置覆盖）
+     * 这是一个辅助方法，供用户在 label() 方法中使用
      *
-     * @param string $key 翻译键名
-     * @param string|null $default 默认值
+     * @param string $value 枚举值
+     * @param string|null $default 默认标签
      * @return string
      */
-    protected function trans(string $key, ?string $default = null): string
+    protected function trans(string $value, ?string $default = null): string
     {
         $enumName = $this->getEnumName();
 
-        // 优先查找用户自定义翻译
-        $userTrans = __("enums.{$enumName}.{$key}");
-        if ($userTrans !== "enums.{$enumName}.{$key}") {
-            return $userTrans;
-        }
-
-        // 其次查找配置覆盖
-        $configLabel = config("enum-options.label_overrides.{$enumName}.{$key}");
+        // 查找配置覆盖
+        $configLabel = config("enum-options.label_overrides.{$enumName}.{$value}");
         if ($configLabel) {
             return $configLabel;
         }
 
-        // 最后查找扩展包预设翻译
-        $presetTrans = __("enum-options::presets.{$enumName}.{$key}");
-        if ($presetTrans !== "enum-options::presets.{$enumName}.{$key}") {
-            return $presetTrans;
-        }
-
-        // 如果都没有，返回默认值或键名
-        return $default ?? $key;
+        // 返回默认值或值本身
+        return $default ?? $value;
     }
 
     /**

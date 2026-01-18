@@ -13,17 +13,23 @@ enum GenderEnum: string
 
     case MALE = 'male';
     case FEMALE = 'female';
-    case OTHER = 'other';
-    case PREFER_NOT_TO_SAY = 'prefer_not_to_say';
+    case UNKNOWN = 'unknown';
+
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '性别';
+    }
 
     public function label(): string
     {
-        return $this->trans($this->value, match ($this) {
+        return match ($this) {
             self::MALE => '男',
             self::FEMALE => '女',
-            self::OTHER => '其他',
-            self::PREFER_NOT_TO_SAY => '保密',
-        });
+            self::UNKNOWN => '未知',
+        };
     }
 
     public function color(): string
@@ -36,18 +42,16 @@ enum GenderEnum: string
         return match ($this) {
             self::MALE => 'primary',                           // 男 - 蓝色
             self::FEMALE => 'danger',                          // 女 - 粉色（danger在某些主题是粉色）
-            self::OTHER => 'success',                          // 其他 - 绿色
-            self::PREFER_NOT_TO_SAY => 'info',                 // 保密 - 灰色
+            self::UNKNOWN => 'info',                           // 未知 - 灰色
         };
     }
 
     public function icon(): ?string
     {
         return match ($this) {
-            self::MALE => 'men-fill',
-            self::FEMALE => 'women-fill',
-            self::OTHER => 'genderless-fill',
-            self::PREFER_NOT_TO_SAY => 'question-fill',
+            self::MALE => 'men-line',
+            self::FEMALE => 'women-line',
+            self::UNKNOWN => 'question-line',
         };
     }
 }

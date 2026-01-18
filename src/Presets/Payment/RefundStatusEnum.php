@@ -12,24 +12,24 @@ enum RefundStatusEnum: string
     use EnumOptions;
 
     case NONE = 'none';
-    case PENDING = 'pending';
-    case PROCESSING = 'processing';
-    case PARTIAL = 'partial';
     case FULL = 'full';
-    case FAILED = 'failed';
-    case REJECTED = 'rejected';
+    case PARTIAL = 'partial';
+
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '退款状态';
+    }
 
     public function label(): string
     {
-        return $this->trans($this->value, match ($this) {
+        return match ($this) {
             self::NONE => '无退款',
-            self::PENDING => '待退款',
-            self::PROCESSING => '退款中',
-            self::PARTIAL => '部分退款',
             self::FULL => '全额退款',
-            self::FAILED => '退款失败',
-            self::REJECTED => '退款拒绝',
-        });
+            self::PARTIAL => '部分退款',
+        };
     }
 
     public function color(): string
@@ -40,11 +40,9 @@ enum RefundStatusEnum: string
         }
 
         return match ($this) {
-            self::NONE => 'info',                               // 无退款 - 默认
-            self::PROCESSING => 'primary',                      // 退款中 - 进行中
-            self::PENDING => 'warning',                         // 待退款 - 需要处理
-            self::PARTIAL, self::FULL => 'danger',             // 已退款 - 负向状态
-            self::FAILED, self::REJECTED => 'danger',          // 失败/拒绝 - 错误
+            self::NONE => 'info',                               // 无退款 - 灰色
+            self::FULL => 'danger',                             // 全额退款 - 红色
+            self::PARTIAL => 'warning',                         // 部分退款 - 橙色
         };
     }
 
@@ -52,12 +50,8 @@ enum RefundStatusEnum: string
     {
         return match ($this) {
             self::NONE => 'checkbox-blank-circle-line',
-            self::PENDING => 'time-line',
-            self::PROCESSING => 'refund-line',
-            self::PARTIAL => 'refund-2-line',
             self::FULL => 'refund-fill',
-            self::FAILED => 'close-circle-fill',
-            self::REJECTED => 'forbid-fill',
+            self::PARTIAL => 'refund-2-line',
         };
     }
 }

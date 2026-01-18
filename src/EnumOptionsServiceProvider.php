@@ -31,14 +31,6 @@ class EnumOptionsServiceProvider extends ServiceProvider
             __DIR__.'/../config/enum-options.php' => config_path('enum-options.php'),
         ], 'enum-options-config');
 
-        // 发布翻译文件
-        $this->publishes([
-            __DIR__.'/../lang' => $this->app->langPath('vendor/enum-options'),
-        ], 'enum-options-lang');
-
-        // 加载翻译文件
-        $this->loadTranslationsFrom(__DIR__.'/../lang', 'enum-options');
-
         // 注册命令
         if ($this->app->runningInConsole()) {
             $this->commands([

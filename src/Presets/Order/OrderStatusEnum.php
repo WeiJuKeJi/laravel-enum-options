@@ -11,31 +11,37 @@ enum OrderStatusEnum: string
 {
     use EnumOptions;
 
-    case PENDING = 'pending';
-    case CONFIRMED = 'confirmed';
-    case PROCESSING = 'processing';
-    case COMPLETED = 'completed';
-    case CANCELLED = 'cancelled';
-    case EXPIRED = 'expired';
-    case FAILED = 'failed';
-    case ON_HOLD = 'on_hold';
-    case REFUNDED = 'refunded';
+    case UNPAID = 'unpaid';
+    case PENDING_USE = 'pending_use';
+    case PARTIALLY_USED = 'partially_used';
     case PARTIALLY_REFUNDED = 'partially_refunded';
+    case USED = 'used';
+    case REFUNDED = 'refunded';
+    case CANCELLED = 'cancelled';
+    case CLOSED = 'closed';
+    case COMPLETED = 'completed';
+
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '订单状态';
+    }
 
     public function label(): string
     {
-        return $this->trans($this->value, match ($this) {
-            self::PENDING => '待处理',
-            self::CONFIRMED => '已确认',
-            self::PROCESSING => '处理中',
-            self::COMPLETED => '已完成',
-            self::CANCELLED => '已取消',
-            self::EXPIRED => '已过期',
-            self::FAILED => '失败',
-            self::ON_HOLD => '暂停',
-            self::REFUNDED => '已退款',
+        return match ($this) {
+            self::UNPAID => '未支付',
+            self::PENDING_USE => '待使用',
+            self::PARTIALLY_USED => '部分使用',
             self::PARTIALLY_REFUNDED => '部分退款',
-        });
+            self::USED => '已使用',
+            self::REFUNDED => '已退款',
+            self::CANCELLED => '已取消',
+            self::CLOSED => '已关闭',
+            self::COMPLETED => '已完成',
+        };
     }
 
     public function color(): string
@@ -46,27 +52,28 @@ enum OrderStatusEnum: string
         }
 
         return match ($this) {
-            self::COMPLETED => 'success',                       // 已完成 - 成功
-            self::CONFIRMED, self::PROCESSING => 'primary',     // 已确认/处理中 - 进行中
-            self::PENDING => 'warning',                         // 待处理 - 需要注意
-            self::FAILED, self::REFUNDED, self::PARTIALLY_REFUNDED => 'danger', // 失败/退款 - 错误
-            self::CANCELLED, self::EXPIRED, self::ON_HOLD => 'info', // 取消/过期/暂停 - 中性
+            self::COMPLETED => 'success',                        // 已完成 - 成功
+            self::USED => 'success',                             // 已使用 - 成功
+            self::PENDING_USE => 'primary',                      // 待使用 - 进行中
+            self::UNPAID => 'warning',                           // 未支付 - 需要注意
+            self::PARTIALLY_USED => 'warning',                   // 部分使用 - 需要注意
+            self::REFUNDED, self::PARTIALLY_REFUNDED => 'danger', // 退款 - 错误
+            self::CANCELLED, self::CLOSED => 'info',             // 取消/关闭 - 中性
         };
     }
 
     public function icon(): ?string
     {
         return match ($this) {
-            self::PENDING => 'file-list-line',
-            self::CONFIRMED => 'checkbox-circle-line',
-            self::PROCESSING => 'loader-line',
-            self::COMPLETED => 'checkbox-circle-fill',
-            self::CANCELLED => 'close-circle-fill',
-            self::EXPIRED => 'hourglass-fill',
-            self::FAILED => 'error-warning-fill',
-            self::ON_HOLD => 'pause-circle-fill',
-            self::REFUNDED => 'refund-fill',
+            self::UNPAID => 'money-cny-circle-line',
+            self::PENDING_USE => 'ticket-2-line',
+            self::PARTIALLY_USED => 'file-list-2-line',
             self::PARTIALLY_REFUNDED => 'refund-2-fill',
+            self::USED => 'checkbox-circle-fill',
+            self::REFUNDED => 'refund-fill',
+            self::CANCELLED => 'close-circle-fill',
+            self::CLOSED => 'lock-fill',
+            self::COMPLETED => 'check-double-fill',
         };
     }
 }

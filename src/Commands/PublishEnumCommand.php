@@ -15,22 +15,31 @@ class PublishEnumCommand extends Command
     protected $description = 'Publish preset enum classes to your application';
 
     protected array $presets = [
+        'Common' => [
+            'Boolean' => 'Common/BooleanEnum.php',
+            'EnableStatus' => 'Common/EnableStatusEnum.php',
+        ],
         'Payment' => [
             'PaymentMethod' => 'Payment/PaymentMethodEnum.php',
             'PaymentStatus' => 'Payment/PaymentStatusEnum.php',
             'RefundStatus' => 'Payment/RefundStatusEnum.php',
+            'VerificationStatus' => 'Payment/VerificationStatusEnum.php',
+            'ReconciliationStatus' => 'Payment/ReconciliationStatusEnum.php',
         ],
         'Order' => [
             'OrderStatus' => 'Order/OrderStatusEnum.php',
             'OrderType' => 'Order/OrderTypeEnum.php',
+            'SalesType' => 'Order/SalesTypeEnum.php',
         ],
         'User' => [
             'UserStatus' => 'User/UserStatusEnum.php',
             'Gender' => 'User/GenderEnum.php',
+            'AccountTransactionType' => 'User/AccountTransactionTypeEnum.php',
         ],
         'Business' => [
             'ApprovalStatus' => 'Business/ApprovalStatusEnum.php',
             'PublishStatus' => 'Business/PublishStatusEnum.php',
+            'OtaPlatform' => 'Business/OtaPlatformEnum.php',
         ],
     ];
 

@@ -154,7 +154,7 @@ class EnumController extends Controller
                 'label' => $this->getCategoryLabel($category),
                 'children' => $items->map(fn($item) => [
                     'id' => $item['key'],
-                    'label' => $item['name'],
+                    'label' => $item['label'] ?? $item['name'],
                     'key' => $item['key'],
                     'route' => $item['route'],
                     'count' => $item['count'],

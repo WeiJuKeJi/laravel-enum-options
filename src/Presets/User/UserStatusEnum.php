@@ -18,16 +18,24 @@ enum UserStatusEnum: string
     case DELETED = 'deleted';
     case PENDING_VERIFICATION = 'pending_verification';
 
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '用户状态';
+    }
+
     public function label(): string
     {
-        return $this->trans($this->value, match ($this) {
+        return match ($this) {
             self::ACTIVE => '正常',
             self::INACTIVE => '未激活',
             self::SUSPENDED => '已暂停',
             self::BANNED => '已封禁',
             self::DELETED => '已删除',
             self::PENDING_VERIFICATION => '待验证',
-        });
+        };
     }
 
     public function color(): string

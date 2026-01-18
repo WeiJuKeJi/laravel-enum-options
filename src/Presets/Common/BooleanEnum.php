@@ -19,12 +19,20 @@ enum BooleanEnum: string
     case ONE = '1';
     case ZERO = '0';
 
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '布尔值';
+    }
+
     public function label(): string
     {
-        return $this->trans($this->value, match ($this) {
+        return match ($this) {
             self::YES, self::Y, self::ONE => '是',
             self::NO, self::N, self::ZERO => '否',
-        });
+        };
     }
 
     public function color(): string
@@ -36,14 +44,14 @@ enum BooleanEnum: string
 
         return match ($this) {
             self::YES, self::Y, self::ONE => 'success',     // 是 - 绿色/成功色
-            self::NO, self::N, self::ZERO => 'info',        // 否 - 灰色/信息色
+            self::NO, self::N, self::ZERO => 'danger',      // 否 - 红色/危险色
         };
     }
 
     public function icon(): ?string
     {
         return match ($this) {
-            self::YES, self::Y, self::ONE => 'check-circle-fill',
+            self::YES, self::Y, self::ONE => 'checkbox-circle-fill',
             self::NO, self::N, self::ZERO => 'close-circle-fill',
         };
     }

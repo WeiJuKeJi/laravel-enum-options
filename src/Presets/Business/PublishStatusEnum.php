@@ -17,15 +17,23 @@ enum PublishStatusEnum: string
     case UNPUBLISHED = 'unpublished';
     case ARCHIVED = 'archived';
 
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '发布状态';
+    }
+
     public function label(): string
     {
-        return $this->trans($this->value, match ($this) {
+        return match ($this) {
             self::DRAFT => '草稿',
             self::SCHEDULED => '定时发布',
             self::PUBLISHED => '已发布',
             self::UNPUBLISHED => '未发布',
             self::ARCHIVED => '已归档',
-        });
+        };
     }
 
     public function color(): string

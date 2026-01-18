@@ -286,6 +286,7 @@ class EnumRegistry
             $metadata[] = [
                 'key' => $key,
                 'name' => $config['name'] ?? $key,
+                'label' => static::getEnumDisplayName($enumClass),
                 'description' => $config['description'] ?? '',
                 'route' => $config['route'] ?? '/enums/' . Str::slug($key, '-'),
                 'count' => count($enumClass::cases()),
@@ -294,6 +295,24 @@ class EnumRegistry
         }
 
         return $metadata;
+    }
+
+    /**
+     * 获取枚举的中文显示名称
+     * 从枚举类的 displayName() 方法读取
+     *
+     * @param string $enumClass
+     * @return string
+     */
+    protected static function getEnumDisplayName(string $enumClass): string
+    {
+        // 检查枚举类是否有 displayName 方法
+        if (method_exists($enumClass, 'displayName')) {
+            return $enumClass::displayName();
+        }
+
+        // 回退：返回从类名生成的名称
+        return static::generateName($enumClass);
     }
 
     /**

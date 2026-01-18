@@ -18,16 +18,24 @@ enum ApprovalStatusEnum: string
     case CANCELLED = 'cancelled';
     case REVOKED = 'revoked';
 
+    /**
+     * 获取枚举的中文显示名称
+     */
+    public static function displayName(): string
+    {
+        return '审批状态';
+    }
+
     public function label(): string
     {
-        return $this->trans($this->value, match ($this) {
+        return match ($this) {
             self::DRAFT => '草稿',
             self::PENDING => '待审批',
             self::APPROVED => '已通过',
             self::REJECTED => '已拒绝',
             self::CANCELLED => '已取消',
             self::REVOKED => '已撤销',
-        });
+        };
     }
 
     public function color(): string
