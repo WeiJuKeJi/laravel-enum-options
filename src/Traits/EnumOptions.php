@@ -109,15 +109,21 @@ trait EnumOptions
 
     /**
      * 安全地将枚举值转换为数组
+     * 支持传入字符串值或枚举实例（兼容 Model $casts 场景）
      * 如果值无效，返回包含原始值的降级对象而不是 null
      *
-     * @param string|null $value 枚举值
+     * @param string|self|null $value 枚举值或枚举实例
      * @return array|null 如果 value 为 null 返回 null，否则返回数组
      */
-    public static function toArraySafe(?string $value): ?array
+    public static function toArraySafe(string|self|null $value): ?array
     {
         if ($value === null) {
             return null;
+        }
+
+        // 如果已经是枚举实例，直接调用 toArray()
+        if ($value instanceof self) {
+            return $value->toArray();
         }
 
         // 尝试转换为枚举实例
