@@ -2,6 +2,12 @@
 
 All notable changes to `laravel-enum-options` will be documented in this file.
 
+## [1.4.0] - 2026-05-05
+
+### Changed
+- Added Laravel 13 support to Composer constraints.
+- Expanded the package test dependency matrix for Laravel 13.
+
 ## [1.2.2] - 2026-01-01
 
 ### Fixed
